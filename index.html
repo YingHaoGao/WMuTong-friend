@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>electron</title>
+</head>
+<body>
+	<div id="clickThroughElement" style="border: solid 2px #000;">
+		We are using node <script>document.write(process.versions.node)</script>,
+		Chrome <script>document.write(process.versions.chrome)</script>,
+		and Electron <script>document.write(process.versions.electron)</script>.
+	</div>
+	<script>
+		// 区域穿透
+		let win = require('electron').remote.getCurrentWindow();
+		let el = document.getElementById('clickThroughElement')
+		el.addEventListener('mouseenter', () => {
+		  win.setIgnoreMouseEvents(false)
+		})
+		el.addEventListener('mouseleave', () => {
+		  win.setIgnoreMouseEvents(true, { forward: true })
+		})
+	</script>
+</body>
+</html>

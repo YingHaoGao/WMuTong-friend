@@ -1,0 +1,19 @@
+{
+  "name": "wmutong-friend",
+  "version": "1.0.0",
+  "description": "",
+  "main": "main.js",
+  "scripts": {
+    "serve": "electron ."
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/YingHaoGao/WMuTong-friend.git"
+  },
+  "author": "WMuTong",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/YingHaoGao/WMuTong-friend/issues"
+  },
+  "homepage": "https://github.com/YingHaoGao/WMuTong-friend#readme"
+}
