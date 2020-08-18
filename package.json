@@ -4,13 +4,14 @@
   "description": "",
   "main": "main.js",
   "scripts": {
-    "serve": "electron ."
+    "serve": "set WIDTH=400&&set HEIGHT=500&& electron .",
+    "serve-t": "set NODE_ENV=devTools&& electron ."
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/YingHaoGao/WMuTong-friend.git"
   },
-  "author": "WMuTong",
+  "author": "MuTong",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/YingHaoGao/WMuTong-friend/issues"

@@ -1,12 +1,22 @@
 const { app, BrowserWindow, screen } = require('electron');
 const path = require('path');
+const env = process.env;
 
 function createWindow() {
 	let width = 400,
 		height = 500,
 		workAreaSize = screen.getPrimaryDisplay().workAreaSize,
 		x = workAreaSize.width - width,
+		y = workAreaSize.height - height,
+		alwaysOnTop = true;
+
+	if(env.NODE_ENV == 'devTools') {
+		width = 1600;
+		height = 800;
+		x = workAreaSize.width - width;
 		y = workAreaSize.height - height;
+		alwaysOnTop = false;
+	}
 
 	let win = new BrowserWindow({
 		width: width,
@@ -20,11 +30,11 @@ function createWindow() {
 		minimizable: false,
 		maximizable: false,
 		closable: false,
-		// alwaysOnTop: true,
+		alwaysOnTop: alwaysOnTop,
 		fullscreenable: false,
 		autoHideMenuBar: true,
-		// icon: '',
-		backgroundColor: '#2e2c29',
+		icon: 'icon/logo.png',
+		// backgroundColor: '#2e2c29',
 	    webPreferences: {
 	      nodeIntegration: true,
 	      nodeIntegrationInWorker: true,
@@ -32,7 +42,10 @@ function createWindow() {
 	    }
 	});
 
-	win.loadFile('index.html');
+	if(env.NODE_ENV == 'devTools') {
+		win.webContents.openDevTools();
+	}
+	win.loadFile('src/index.html');
 }
 
 app.whenReady().then(createWindow);
