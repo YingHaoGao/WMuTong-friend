@@ -2,7 +2,7 @@
   "name": "wmutong-friend",
   "version": "1.0.0",
   "description": "",
-  "main": "main.js",
+  "main": "src/main/main.js",
   "scripts": {
     "serve": "set WIDTH=400&&set HEIGHT=500&& electron .",
     "serve-t": "set NODE_ENV=devTools&& electron ."
@@ -16,5 +16,8 @@
   "bugs": {
     "url": "https://github.com/YingHaoGao/WMuTong-friend/issues"
   },
-  "homepage": "https://github.com/YingHaoGao/WMuTong-friend#readme"
+  "homepage": "https://github.com/YingHaoGao/WMuTong-friend#readme",
+  "dependencies": {
+    "three": "^0.119.1"
+  }
 }
