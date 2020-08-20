@@ -14,6 +14,9 @@ var idleAction, walkAction, runAction;
 var idleWeight, walkWeight, runWeight;
 var actions, settings;
 
+var lookAt = { x: 0, y: 1, z: 0 };
+var position = { x: 1, y: 2, z: -3 };
+
 var singleStepMode = false;
 var sizeOfNextStep = 0;
 
@@ -23,9 +26,15 @@ function init() {
 
 	var container = document.getElementById( 'clickThroughElement' );
 
+	/* 相机 - start - */
+	// 创建透视摄像机
+	// argument: [视野角度, 宽高比, 远剪切面, 近剪切面]
 	camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 1, 1000 );
-	camera.position.set( 1, 2, - 3 );
-	camera.lookAt( 0, 1, 0 );
+	// 设置相机位置 (相机摆放位置)
+	camera.position.set( position.x, position.y, position.z );
+	// 设置摄像机镜头指向的的具体坐标位置
+	camera.lookAt( lookAt.x, lookAt.y, lookAt.z );
+	/* 相机 - end - */
 
 	clock = new THREE.Clock();
 
@@ -98,12 +107,14 @@ function init() {
 
 	} );
 
+	/* 渲染器 - start - */
 	renderer = new THREE.WebGLRenderer( { antialias: true } );
 	renderer.setPixelRatio( window.devicePixelRatio );
 	renderer.setSize( window.innerWidth, window.innerHeight );
 	renderer.outputEncoding = THREE.sRGBEncoding;
 	renderer.shadowMap.enabled = true;
 	container.appendChild( renderer.domElement );
+	/* 渲染器 - start - */
 
 	stats = new Stats();
 	container.appendChild( stats.dom );
@@ -122,6 +133,8 @@ function createPanel() {
 	var folder4 = panel.addFolder( 'Crossfading' );
 	var folder5 = panel.addFolder( 'Blend Weights' );
 	var folder6 = panel.addFolder( 'General Speed' );
+	var folder7 = panel.addFolder( 'Camera lookAt' );
+	var folder8 = panel.addFolder( 'Camera options' );
 
 	settings = {
 		'show model': true,
@@ -156,7 +169,13 @@ function createPanel() {
 		'modify idle weight': 0.0,
 		'modify walk weight': 1.0,
 		'modify run weight': 0.0,
-		'modify time scale': 1.0
+		'modify time scale': 1.0,
+		'注视坐标x': 0.0,
+		'注视坐标y': 1.0,
+		'注视坐标z': 0.0,
+		'相机坐标x': 1.0,
+		'相机坐标y': 2.0,
+		'相机坐标z': -3.0,
 	};
 
 	folder1.add( settings, 'show model' ).onChange( showModel );
@@ -188,13 +207,43 @@ function createPanel() {
 
 	} );
 	folder6.add( settings, 'modify time scale', 0.0, 1.5, 0.01 ).onChange( modifyTimeScale );
+	folder7.add( settings, '注视坐标x', 0.0, 3.0, 0.01 ).listen().onChange( function ( weight ) {
 
-	folder1.open();
-	folder2.open();
-	folder3.open();
-	folder4.open();
-	folder5.open();
-	folder6.open();
+		setLookAt(weight, 'x');
+
+	} );
+	folder7.add( settings, '注视坐标y', 0.0, 3.0, 0.01 ).listen().onChange( function ( weight ) {
+
+		setLookAt(weight, 'y');
+
+	} );
+	folder7.add( settings, '注视坐标z', 0.0, 3.0, 0.01 ).listen().onChange( function ( weight ) {
+
+		setLookAt(weight, 'z');
+
+	} );
+	folder8.add( settings, '相机坐标x', -3.0, 3.0, 0.01 ).listen().onChange( function ( weight ) {
+
+		setPosition(weight, 'x');
+
+	} );
+	folder8.add( settings, '相机坐标y', -3.0, 3.0, 0.01 ).listen().onChange( function ( weight ) {
+
+		setPosition(weight, 'y');
+
+	} );
+	folder8.add( settings, '相机坐标z', -3.0, 3.0, 0.01 ).listen().onChange( function ( weight ) {
+
+		setPosition(weight, 'z');
+
+	} );
+
+	// folder1.open();
+	// folder2.open();
+	// folder3.open();
+	// folder4.open();
+	// folder5.open();
+	// folder6.open();
 
 	crossFadeControls.forEach( function ( control ) {
 
@@ -399,6 +448,20 @@ function setWeight( action, weight ) {
 	action.enabled = true;
 	action.setEffectiveTimeScale( 1 );
 	action.setEffectiveWeight( weight );
+
+}
+
+function setLookAt( weight, key ) {
+
+	lookAt[key] = weight;
+	camera.lookAt( lookAt.x, lookAt.y, lookAt.z );
+
+}
+
+function setPosition( weight, key ) {
+
+	position[key] = weight;
+	camera.position.set( position.x, position.y, position.z );
 
 }
 
