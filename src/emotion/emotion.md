@@ -7,6 +7,8 @@
 
 # character - 性格
 
+_分为显性与隐性，_
+
 	* mold - 性格列表
 		** hid_xxx.js - 隐性性格
 		** xxx.js - 显性性格
