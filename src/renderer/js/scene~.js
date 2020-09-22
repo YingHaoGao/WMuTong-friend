@@ -4,6 +4,8 @@ import Stats from '../build/stats.module.js';
 import { GUI } from '../build/dat.gui.module.js';
 
 import { GLTFLoader } from '../build/loaders/GLTFLoader.js';
+import { OBJLoader } from '../build/loaders/OBJLoader.js';
+import { MTLLoader } from '../build/loaders/MTLLoader.js';
 
 var scene, renderer, camera, stats;
 var model, skeleton, mixer, clock;
@@ -122,77 +124,88 @@ function init() {
 	scene.add( mesh );
 	/* 网格 - end - */
 
+	var mtlLoader = new MTLLoader();
+	mtlLoader.load('./model/figure/lronMan/ironman_Scene.mtl', materials => {
+		materials.preload();
+
+		var objLoader = new OBJLoader();
+		objLoader.setMaterials(materials);
+		objLoader.load('./model/figure/lronMan/ironman_Scene.obj', object => {
+			console.log(object)
+			scene.add(object)
+		})
+	})
+
 	/* 模型加载器 - start - */
 	// glTF（GL传输格式）是一种 开放格式规范，用于有效交付和加载3D内容。、
 	// 资产可以JSON（.gltf）或二进制（.glb）格式提供。外部文件存储纹理（.jpg，.png）和其他二进制数据（.bin）。
 	// glTF资产可以传递一个或多个场景，包括网格，材质，纹理，外观，骨骼，变形目标，动作，灯光和/或相机。
-	var loader = new GLTFLoader();
+	// var loader = new GLTFLoader();
+	// var loader = new OBJLoader();
 	// .load(url: String, onLoad: Function, onProgress: Function, onError: Function)
 	// url - 包含.gltf或.glb文件的路径/ URL的字符串。
 	// onLoad - 成功完成加载后要调用的函数。该函数接收从parse返回的已加载JSON响应。
 	// onProgress - 在加载过程中要调用的函数。参数将是XMLHttpRequest实例，其中包含。总计和。已加载的字节。
 	// onError -（可选）如果在加载过程中发生错误则要调用的函数。该函数接收错误作为参数
 	// loader.load( './model/figure/Soldier.glb', function ( gltf ) {
-	loader.load( './model/figure/lronMan/ironman_Scene.obj', function ( gltf ) {
+	// 	model = gltf.scene;
+	// 	scene.add( model );
 
-		model = gltf.scene;
-		scene.add( model );
+	// 	model.traverse( function ( object ) {
 
-		model.traverse( function ( object ) {
+	// 		if ( object.isMesh ) object.castShadow = true;
 
-			if ( object.isMesh ) object.castShadow = true;
+	// 	} );
 
-		} );
+	// 	/* 辅助对象 - start - */
+	// 	// SkeletonHelper(object)
+	// 	// object - 可以是任何拥有一组骨 Bone 作为子对象的对象
+	// 	// 用来模拟骨骼 Skeleton 的辅助对象，该辅助对象使用 LineBasicMaterial 材质
+	// 	skeleton = new THREE.SkeletonHelper( model );
+	// 	// 隐藏骨骼线
+	// 	skeleton.visible = false;
+	// 	scene.add( skeleton );
+	// 	/* 辅助对象 - end - */
 
-		/* 辅助对象 - start - */
-		// SkeletonHelper(object)
-		// object - 可以是任何拥有一组骨 Bone 作为子对象的对象
-		// 用来模拟骨骼 Skeleton 的辅助对象，该辅助对象使用 LineBasicMaterial 材质
-		skeleton = new THREE.SkeletonHelper( model );
-		// 隐藏骨骼线
-		skeleton.visible = false;
-		scene.add( skeleton );
-		/* 辅助对象 - end - */
-
-		// 控制面板
-		createPanel();
+	// 	// 控制面板
+	// 	createPanel();
 
 
-		// 模型包含的动作列表
-		var animations = gltf.animations;
+	// 	// 模型包含的动作列表
+	// 	var animations = gltf.animations;
 
-		/* 动作 - start - */
-		// 公话混合器是用于场景中特定对象的动作的播放器。当场景中的多个对象独立动作时，每个对象都可以使用同一个动作混合器。
-		// AnimationMixer(rootObject: Object3D)
-		// rootObject - 混合器播放的动作所属的对象
-		mixer = new THREE.AnimationMixer( model );
+	// 	/* 动作 - start - */
+	// 	// 公话混合器是用于场景中特定对象的动作的播放器。当场景中的多个对象独立动作时，每个对象都可以使用同一个动作混合器。
+	// 	// AnimationMixer(rootObject: Object3D)
+	// 	// rootObject - 混合器播放的动作所属的对象
+	// 	mixer = new THREE.AnimationMixer( model );
 
-		// .clipAction(clip: AnimationClip, optionalRoot: Object3D): AnimationAction
-		// 返回所传入的剪辑参数的AnimationAction, 根对象参数可选，默认值为混合器的默认根对象。第一个参数可以是动作剪辑(AnimationClip)对象或者动作剪辑的名称。
-		// 如果不存在符合传入的剪辑和根对象这两个参数的动作, 该方法将会创建一个。传入相同的参数多次调用将会返回同一个剪辑实例。
+	// 	// .clipAction(clip: AnimationClip, optionalRoot: Object3D): AnimationAction
+	// 	// 返回所传入的剪辑参数的AnimationAction, 根对象参数可选，默认值为混合器的默认根对象。第一个参数可以是动作剪辑(AnimationClip)对象或者动作剪辑的名称。
+	// 	// 如果不存在符合传入的剪辑和根对象这两个参数的动作, 该方法将会创建一个。传入相同的参数多次调用将会返回同一个剪辑实例。
 
-		// AnimationAction(mixer: AnimationMixer, clip: AnimationClip, localRoot: Object3D)
-		// mixer - 被此动作控制的 *动作混合器*
-		// clip - *动作剪辑* 保存了此动作当中的动作数据
-		// localRoot - 动作执行的根对象
-		// AnimationActions 用来调度存储在AnimationClips中的动作。
-		// 不要直接调用这个构造函数，而应该先用AnimationMixer.clipAction实例化一个AnimationAction,
-		// 因为这个方法提供了缓存以提高性能。
-		// 闲置动作
-		idleAction = mixer.clipAction( animations[ 0 ] );
-		// 步行动作
-		walkAction = mixer.clipAction( animations[ 3 ] );
-		// 奔跑动作
-		runAction = mixer.clipAction( animations[ 1 ] );
-		// 模型动作列表
-		actions = [ idleAction, walkAction, runAction ];
+	// 	// AnimationAction(mixer: AnimationMixer, clip: AnimationClip, localRoot: Object3D)
+	// 	// mixer - 被此动作控制的 *动作混合器*
+	// 	// clip - *动作剪辑* 保存了此动作当中的动作数据
+	// 	// localRoot - 动作执行的根对象
+	// 	// AnimationActions 用来调度存储在AnimationClips中的动作。
+	// 	// 不要直接调用这个构造函数，而应该先用AnimationMixer.clipAction实例化一个AnimationAction,
+	// 	// 因为这个方法提供了缓存以提高性能。
+	// 	// 闲置动作
+	// 	idleAction = mixer.clipAction( animations[ 0 ] );
+	// 	// 步行动作
+	// 	walkAction = mixer.clipAction( animations[ 3 ] );
+	// 	// 奔跑动作
+	// 	runAction = mixer.clipAction( animations[ 1 ] );
+	// 	// 模型动作列表
+	// 	actions = [ idleAction, walkAction, runAction ];
 
-		// 初始化动作权重并激活所有动作
-		activateAllActions();
+	// 	// 初始化动作权重并激活所有动作
+	// 	activateAllActions();
 
-		animate();
-		/* 动作 - end - */
-	} );
+	// 	animate();
+	// 	/* 动作 - end - */
+	// } );
 	/* 模型加载器 - end - */
 
 	/* 渲染器 - start - */
