@@ -13,16 +13,16 @@
 
 	<!-- 区域穿透 -start- -->
 	<script>
-		// if(process.env.NODE_ENV != 'devTools') {
-		// 	let win = require('electron').remote.getCurrentWindow();
-		// 	let el = document.getElementById('clickThroughElement')
-		// 	el.addEventListener('mouseenter', () => {
-		// 	  win.setIgnoreMouseEvents(false)
-		// 	})
-		// 	el.addEventListener('mouseleave', () => {
-		// 	  win.setIgnoreMouseEvents(true, { forward: true })
-		// 	})
-		// }
+		if(process.env.NODE_ENV != 'devTools') {
+			let win = require('electron').remote.getCurrentWindow();
+			let el = document.getElementById('clickThroughElement')
+			el.addEventListener('mouseenter', () => {
+			  win.setIgnoreMouseEvents(false)
+			})
+			el.addEventListener('mouseleave', () => {
+			  win.setIgnoreMouseEvents(true, { forward: true })
+			})
+		}
 	</script>
 	<script type="module" src="./js/scene.js"></script>
 	<!-- 区域穿透 -end- -->

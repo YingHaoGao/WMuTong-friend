@@ -4,7 +4,7 @@
   "description": "",
   "main": "src/main/main.js",
   "scripts": {
-    "serve": "set WIDTH=400&&set HEIGHT=500&& electron .",
+    "serve": "electron .",
     "serve-t": "set NODE_ENV=devTools&& electron .",
     "pack": "electron-packager . WMuTong-friend --win --out ../WMuTong-friend-exe --atch=64 --app-version=0.01 --electron-version=1.4.13"
   },

@@ -4,9 +4,13 @@ const fs = require('fs');
 const env = process.env;
 
 function createWindow() {
-	let width = 400,
-		height = 500,
-		workAreaSize = screen.getPrimaryDisplay().workAreaSize,
+	let workAreaSize = screen.getPrimaryDisplay().workAreaSize,
+		width = 200,
+		height = 250,
+		// x = 0,
+		// y = 0,
+		// width = workAreaSize.width,
+		// height = workAreaSize.height,
 		x = workAreaSize.width - width,
 		y = workAreaSize.height - height,
 		alwaysOnTop = true;
