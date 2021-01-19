@@ -5,6 +5,9 @@ import { GUI } from '../build/dat.gui.module.js';
 
 import { GLTFLoader } from '../build/loaders/GLTFLoader.js';
 
+// 环境变量
+var env = process.env;
+
 var scene, renderer, camera, stats;
 var model, skeleton, mixer, clock;
 var hemiLight;
@@ -50,8 +53,7 @@ function init() {
 	scene = new THREE.Scene();
 	// 在渲染场景的时候将设置背景，且背景总是首先被渲染
 	// 可以设置一个用于“clear”的color、一个覆盖canvas的Texture(纹理)、一个cubTexture
-	// scene.background = new THREE.Color( 0xa0a0a0 );
-	scene.background = new THREE.Color( '0xa0a0a0' );
+	// scene.background = new THREE.Color( '0xa0a0a0' );
 	// 定义了影响场景中的每个物体的雾的类型
 	/* 雾 - start - */
 	// 这个类中的参数定义了线性迷雾，雾的密度是随着距离线性增大的
@@ -69,7 +71,7 @@ function init() {
 	// intensity - 光照强度 默认： 1
 	hemiLight = new THREE.HemisphereLight( 0xffffff, 0x444444 );
 	hemiLight.position.set( 0, 20, 0 );
-	scene.add( hemiLight );
+	// scene.add( hemiLight );
 	/* 半球光 - end - */
 
 	/* 平行光 - start - */
@@ -119,7 +121,7 @@ function init() {
 	var mesh = new THREE.Mesh( new THREE.PlaneBufferGeometry( 100, 100 ), new THREE.MeshPhongMaterial( { color: 0x999999, depthWrite: false } ) );
 	mesh.rotation.x = - Math.PI / 2;
 	mesh.receiveShadow = true;
-	scene.add( mesh );
+	// scene.add( mesh );
 	/* 网格 - end - */
 
 	/* 模型加载器 - start - */
@@ -155,6 +157,7 @@ function init() {
 		/* 辅助对象 - end - */
 
 		// 控制面板
+		console.log(env.NODE_ENV)
 		createPanel();
 
 
@@ -196,7 +199,8 @@ function init() {
 	/* 模型加载器 - end - */
 
 	/* 渲染器 - start - */
-	renderer = new THREE.WebGLRenderer( { antialias: true } );
+	renderer = new THREE.WebGLRenderer( { antialias: true, alpha: true } );
+	renderer.setClearColor( 0x000000, 0 );
 	renderer.setPixelRatio( window.devicePixelRatio );
 	renderer.setSize( window.innerWidth, window.innerHeight );
 	renderer.outputEncoding = THREE.sRGBEncoding;
