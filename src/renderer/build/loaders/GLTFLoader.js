@@ -255,7 +255,7 @@ var GLTFLoader = ( function () {
 				}
 
 			}
-
+// console.log('content',content)
 			var json = JSON.parse( content );
 
 			if ( json.asset === undefined || json.asset.version[ 0 ] < 2 ) {

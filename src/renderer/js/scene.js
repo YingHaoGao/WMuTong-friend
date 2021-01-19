@@ -132,8 +132,8 @@ function init() {
 	// onLoad - 成功完成加载后要调用的函数。该函数接收从parse返回的已加载JSON响应。
 	// onProgress - 在加载过程中要调用的函数。参数将是XMLHttpRequest实例，其中包含。总计和。已加载的字节。
 	// onError -（可选）如果在加载过程中发生错误则要调用的函数。该函数接收错误作为参数
-	// loader.load( './model/figure/Soldier.glb', function ( gltf ) {
-	loader.load( './model/figure/lronMan/ironman_Scene.obj', function ( gltf ) {
+	loader.load( './model/figure/Soldier.glb', function ( gltf ) {
+	// loader.load( './model/figure/lronMan/ironman_Scene.obj', function ( gltf ) {
 
 		model = gltf.scene;
 		scene.add( model );
