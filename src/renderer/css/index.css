@@ -4,4 +4,13 @@
 }
 html {
 	overflow: hidden;
+	width: 100%;
+	height: 100%;
+	background: none;
+}
+#clickThroughElement {
+	position: fixed;
+	top: 100%;
+	left: 0px;
+	transform: translate(0, -100%);
 }

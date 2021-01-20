@@ -3,23 +3,18 @@ const path = require('path');
 const fs = require('fs');
 const env = process.env;
 
+process.env.canvesWidth = 200;
+process.env.canvesHeight = 250;
+
 function createWindow() {
 	let workAreaSize = screen.getPrimaryDisplay().workAreaSize,
-		width = 200,
-		height = 250,
-		// x = 0,
-		// y = 0,
-		// width = workAreaSize.width,
-		// height = workAreaSize.height,
+		width = workAreaSize.width - 1,
+		height = workAreaSize.height - 1,
 		x = workAreaSize.width - width,
 		y = workAreaSize.height - height,
 		alwaysOnTop = true;
 
 	if(env.NODE_ENV == 'devTools') {
-		width = 1600;
-		height = 800;
-		x = workAreaSize.width - width;
-		y = workAreaSize.height - height;
 		alwaysOnTop = false;
 	}
 
@@ -42,6 +37,7 @@ function createWindow() {
 		// backgroundColor: '#2e2c29',
 	    webPreferences: {
 	      nodeIntegration: true,
+	      enableRemoteModule: true,
 	      nodeIntegrationInWorker: true,
 	      nodeIntegrationInSubFrames: true
 	    }

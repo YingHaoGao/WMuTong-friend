@@ -36,7 +36,8 @@ function init() {
 	/* 相机 - start - */
 	// 创建透视摄像机
 	// argument: [视野角度, 宽高比, 远剪切面, 近剪切面]
-	camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 1, 1000 );
+	// camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 1, 1000 );
+	camera = new THREE.PerspectiveCamera( 45, env.canvesWidth / env.canvesHeight, 1, 1000 );
 	// 设置相机位置 (相机摆放位置)
 	camera.position.set( cameraPosition.x, cameraPosition.y, cameraPosition.z );
 	// 设置摄像机镜头指向的的具体坐标位置
@@ -202,7 +203,8 @@ function init() {
 	renderer = new THREE.WebGLRenderer( { antialias: true, alpha: true } );
 	renderer.setClearColor( 0x000000, 0 );
 	renderer.setPixelRatio( window.devicePixelRatio );
-	renderer.setSize( window.innerWidth, window.innerHeight );
+	// renderer.setSize( window.innerWidth, window.innerHeight );
+	renderer.setSize( env.canvesWidth, env.canvesHeight );
 	renderer.outputEncoding = THREE.sRGBEncoding;
 	renderer.shadowMap.enabled = true;
 	container.appendChild( renderer.domElement );
@@ -684,10 +686,12 @@ function updateCrossFadeControls() {
 
 function onWindowResize() {
 
-	camera.aspect = window.innerWidth / window.innerHeight;
+	// camera.aspect = window.innerWidth / window.innerHeight;
+	camera.aspect = env.canvesWidth / env.canvesHeight;
 	camera.updateProjectionMatrix();
 
-	renderer.setSize( window.innerWidth, window.innerHeight );
+	// renderer.setSize( window.innerWidth, window.innerHeight );
+	renderer.setSize( env.canvesWidth, env.canvesHeight );
 
 }
 
