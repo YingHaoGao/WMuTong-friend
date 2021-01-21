@@ -14,3 +14,9 @@ html {
 	left: 0px;
 	transform: translate(0, -100%);
 }
+#gui {
+	position: absolute;
+	top: 0px;
+	left: 50%;
+	transform: translate(-50%, 0);
+}

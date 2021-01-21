@@ -130,13 +130,13 @@ function init() {
 	// 资产可以JSON（.gltf）或二进制（.glb）格式提供。外部文件存储纹理（.jpg，.png）和其他二进制数据（.bin）。
 	// glTF资产可以传递一个或多个场景，包括网格，材质，纹理，外观，骨骼，变形目标，动作，灯光和/或相机。
 	var loader = new GLTFLoader();
+	
 	// .load(url: String, onLoad: Function, onProgress: Function, onError: Function)
 	// url - 包含.gltf或.glb文件的路径/ URL的字符串。
 	// onLoad - 成功完成加载后要调用的函数。该函数接收从parse返回的已加载JSON响应。
 	// onProgress - 在加载过程中要调用的函数。参数将是XMLHttpRequest实例，其中包含。总计和。已加载的字节。
 	// onError -（可选）如果在加载过程中发生错误则要调用的函数。该函数接收错误作为参数
 	loader.load( './model/figure/Soldier.glb', function ( gltf ) {
-	// loader.load( './model/figure/lronMan/ironman_Scene.obj', function ( gltf ) {
 
 		model = gltf.scene;
 		scene.add( model );
@@ -158,7 +158,6 @@ function init() {
 		/* 辅助对象 - end - */
 
 		// 控制面板
-		console.log(env.NODE_ENV)
 		createPanel();
 
 
@@ -221,6 +220,9 @@ function init() {
 function createPanel() {
 	// 创建宽度为 310px 的控制面板
 	var panel = new GUI( { width: 310 } );
+
+	// 给控制面板设置 id
+	panel.domElement.id = 'gui';
 
 	// panel.addFolder(name): gui
 	// 创建一个新的子文件夹GUI实例。
