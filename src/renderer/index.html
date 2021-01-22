@@ -15,30 +15,30 @@
 
 	<!-- 区域穿透 -start- -->
 	<script>
-		// let win = require('electron').remote.getCurrentWindow();
-		// let el = document.getElementById('html');
+		let win = require('electron').remote.getCurrentWindow();
+		let el = document.getElementById('html');
 
-		// el.style.width = 200;
-		// el.style.height = 250;
+		el.style.width = 200;
+		el.style.height = 250;
 		
-		// el.addEventListener('mouseenter', (e) => {
-		//   win.setIgnoreMouseEvents(true, { forward: true })
-		// })
-		// el.addEventListener('mouseleave', () => {
-		//   win.setIgnoreMouseEvents(false)
-		// })
+		el.addEventListener('mouseenter', (e) => {
+		  win.setIgnoreMouseEvents(true, { forward: true })
+		})
+		el.addEventListener('mouseleave', () => {
+		  win.setIgnoreMouseEvents(false)
+		})
 
-		// setTimeout(() => {
-		// 	let el1 = document.getElementsByClassName('dg ac')[0];
-		// 	console.log(el1)
-		// 	el1.addEventListener('mouseenter', (e) => {
-		// 		console.log('ddd')
-		// 	  win.setIgnoreMouseEvents(false)
-		// 	})
-		// 	el1.addEventListener('mouseleave', () => {
-		// 	  win.setIgnoreMouseEvents(true, { forward: true })
-		// 	})
-		// }, 2000);
+		setTimeout(() => {
+			let el1 = document.getElementsByClassName('dg ac')[0];
+			console.log(el1)
+			el1.addEventListener('mouseenter', (e) => {
+				console.log('ddd')
+			  win.setIgnoreMouseEvents(false)
+			})
+			el1.addEventListener('mouseleave', () => {
+			  win.setIgnoreMouseEvents(true, { forward: true })
+			})
+		}, 2000);
 	</script>
 	<script type="module" src="./js/scene.js"></script>
 	<!-- <script type="module" src="./js/scene1.js"></script> -->
