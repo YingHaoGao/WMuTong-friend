@@ -190,6 +190,10 @@ function init() {
 		// 模型动作列表
 		actions = [ idleAction, walkAction, runAction ];
 
+
+		window.prepareCrossFade = prepareCrossFade;
+		window.actions = { idleAction: idleAction, walkAction: walkAction, runAction: runAction };
+
 		// 初始化动作权重并激活所有动作
 		activateAllActions();
 
@@ -269,8 +273,8 @@ function createPanel() {
 		},
 		'use default duration': true,
 		'set custom duration': 3.5,
-		'modify idle weight': 0.0,
-		'modify walk weight': 1.0,
+		'modify idle weight': 1.0,
+		'modify walk weight': 0.0,
 		'modify run weight': 0.0,
 		'modify time scale': 1.0,
 		'注视坐标x': lookAt.x,
@@ -531,6 +535,7 @@ function toSingleStepMode() {
 
 // 切换动作
 function prepareCrossFade( startAction, endAction, defaultDuration ) {
+	var elConsole = document.getElementById('console');
 	// 判断使用 配置的持续时间 还是使用 控制面板设置的持续时间
 	var duration = setCrossFadeDuration( defaultDuration );
 
@@ -655,7 +660,7 @@ function updateWeightSliders() {
 	settings[ 'modify run weight' ] = runWeight;
 }
 
-// Called by the render loop
+// 由渲染循环调用
 
 function updateCrossFadeControls() {
 

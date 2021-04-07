@@ -23,3 +23,12 @@ html {
 .dg.main .close-button {
 	background: rgba(0, 0, 0, 0.3) !important;
 }
+#console {
+	width: 200px;
+	height: 200px;
+	background: none;
+	position: fixed;
+	bottom: 0px;
+	right: 0px;
+	color: red;
+}

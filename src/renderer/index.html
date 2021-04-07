@@ -10,6 +10,7 @@
 	<!-- 不可穿透容器 -start- -->
 	<div id="clickThroughElement"></div>
 	<canvas id="mainCanvas" width="800px" height="600px" ></canvas>
+	<div id="console"></div>
 
 	<!-- 不可穿透容器 -end- -->
 
@@ -30,9 +31,7 @@
 
 		setTimeout(() => {
 			let el1 = document.getElementsByClassName('dg ac')[0];
-			console.log(el1)
 			el1.addEventListener('mouseenter', (e) => {
-				console.log('ddd')
 			  win.setIgnoreMouseEvents(false)
 			})
 			el1.addEventListener('mouseleave', () => {
@@ -43,6 +42,7 @@
 	<script type="module" src="./js/scene.js"></script>
 	<!-- <script type="module" src="./js/scene1.js"></script> -->
 	<!-- <script type="module" src="./js/scene2.js"></script> -->
+	<script type="module" src="./js/frequency.js"></script>
 	<!-- 区域穿透 -end- -->
 </body>
 </html>
