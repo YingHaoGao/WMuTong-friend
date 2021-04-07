@@ -219,7 +219,7 @@ function init() {
 // 创建 GUI 控制面板
 function createPanel() {
 	// 创建宽度为 310px 的控制面板
-	var panel = new GUI( { width: 310 } );
+	var panel = new GUI( { width: 310, opacity: 0.5 } );
 
 	// 给控制面板设置 id
 	panel.domElement.id = 'gui';

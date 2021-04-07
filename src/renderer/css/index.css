@@ -20,3 +20,6 @@ html {
 	left: 50%;
 	transform: translate(-50%, 0);
 }
+.dg.main .close-button {
+	background: rgba(0, 0, 0, 0.3) !important;
+}
