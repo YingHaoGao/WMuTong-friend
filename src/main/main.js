@@ -1,6 +1,7 @@
 const { app, BrowserWindow, screen } = require('electron');
 const path = require('path');
 const fs = require('fs');
+const nodeApi = require('node-api');
 const env = process.env;
 
 process.env.canvesWidth = 200;
@@ -49,4 +50,6 @@ function createWindow() {
 	win.loadFile('src/renderer/index.html');
 }
 
-app.whenReady().then(createWindow);
+app.on('ready', () => {
+	createWindow();
+})

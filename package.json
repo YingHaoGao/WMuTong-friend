@@ -19,6 +19,8 @@
   },
   "homepage": "https://github.com/YingHaoGao/WMuTong-friend#readme",
   "dependencies": {
+    "electron-rebuild": "^2.3.5",
+    "node-api": "^0.0.1",
     "three": "^0.127.0"
   },
   "devDependencies": {
