@@ -40,9 +40,9 @@ function init() {
 	// idleAction, walkAction, runAction
 	window.animation = 'idleAction';
 
-	// elHtml.onmousemove = function(){
-	// 	addGradeFn('mousemoveObj');
-	// };
+	elHtml.onmousemove = function(){
+		addGradeFn('mousemoveObj');
+	};
 	// ioHook.on('mousemove', event => {
 	//   console.log(event);
 	// });
