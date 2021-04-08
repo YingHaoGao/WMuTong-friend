@@ -1,5 +1,7 @@
-setTimeout(function (){
-	var that = this;
+const { remote, ipcRenderer } = require('electron');
+const { robot } = remote.app.main_params;
+
+function init() {
 	var operationInterval;
 	var operationTime = 1000;
 	var gradeArr = [ { key: 'idleAction', grade: 0 }, { key: 'walkAction', grade: 50 }, { key: 'runAction', grade: 150 } ];
@@ -9,6 +11,7 @@ setTimeout(function (){
 	var mouseObj = { mousemoveObj: mousemoveObj, mousedownObj: mousedownObj, mousewheelObj: mousewheelObj };
 	var operationGradeVal = 0;
 	var elConsole = document.getElementById('console');
+	var elHtml = document.getElementById('html');
 	var operationGrade = Object.defineProperty({}, 'val', {
 		get() { return operationGradeVal },
 		set(v) {
@@ -37,7 +40,14 @@ setTimeout(function (){
 	// idleAction, walkAction, runAction
 	window.animation = 'idleAction';
 
-	var addGradeFn = (key) => {
+	elHtml.onmousemove = function(){
+		addGradeFn('mousemoveObj');
+	};
+
+	decrease();
+
+	// 紧迫程度 - 递增
+	function addGradeFn(key) {
 		let time = new Date().getTime();
 
 		if(time - mouseObj[key].preTime > mouseObj[key].interval) {
@@ -45,36 +55,52 @@ setTimeout(function (){
 			operationGrade.val += mouseObj[key].addGrade;
 		}
 	};
-
-	// 衰退
-	operationInterval = setInterval(() => {
-		if(operationGradeVal > 0) {
-			operationGrade.val -= 1;
-		}
-	}, operationTime);
-
-
-	let el = document.getElementById('html');
-	el.onmousemove = function(){
-		addGradeFn('mousemoveObj');
+	// 紧迫程度 - 衰退
+	function decrease() {
+		operationInterval && clearInterval(operationInterval);
+		operationInterval = setInterval(() => {
+			if(operationGradeVal > 0) {
+				operationGrade.val -= 1;
+			}
+		}, operationTime);
 	};
-	// 不能接收除了 移动 以外的鼠标事件。。。。。
-	el.onmousedown = function(){
-		addGradeFn('mousedownObj');
-	};
-	el.onmouseup = function(){
-		addGradeFn('mousedownObj');
-	};
-	el.onmousewheel = function(e, d){
-		elConsole.innerHTML = 'onmousewheel';
-		let dir = d > 0 ? 'up' : 'down';
+	// 控制鼠标
+	function robotMouse() {
+		// Speed up the mouse.
+		robot.setMouseDelay(2);
 
-		addGradeFn('mousewheelObj');
-		if(dir == 'up') {
-			// 向上滚动
-		}
-		else {
-			// 向下滚动
+		var twoPI = Math.PI * 2.0;
+		var screenSize = robot.getScreenSize();
+		var height = (screenSize.height / 2) - 10;
+		var width = screenSize.width;
+
+		for (var x = 0; x < width; x++)
+		{
+			y = height * Math.sin((twoPI * x) / width) + height;
+			robot.moveMouse(x, y);
 		}
 	};
-}, 1000);
+	// 控制键盘
+	function robotKeyBoard() {
+		console.log('robotKeyBoard')
+		// Type "Hello World".
+		robot.typeString("Hello World");
+
+		// Press enter.
+		robot.keyTap("enter");
+	};
+	// 获取屏幕
+	function robotScreen() {
+		console.log('robotScreen')
+		// Get mouse position.
+		var mouse = robot.getMousePos();
+
+		// Get pixel color in hex format.
+		var hex = robot.getPixelColor(mouse.x, mouse.y);
+		console.log("#" + hex + " at x:" + mouse.x + " y:" + mouse.y);
+	};
+};
+
+ipcRenderer.on('browserWindowCreated', (event, ans) => {
+    init();
+})
