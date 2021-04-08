@@ -6,7 +6,8 @@
   "scripts": {
     "serve": "electron .",
     "serve-t": "set NODE_ENV=devTools&& electron .",
-    "pack": "electron-packager . WMuTong-friend --win --out ../WMuTong-friend-exe --atch=64 --app-version=0.01 --electron-version=1.4.13"
+    "packager": "electron-packager . mutong_friend --out mutong_friend --arch=x64 --overwrite --ignore=node_modules",
+    "rebuild": "npm rebuild --runtime=electron --target=11.2.0 --disturl=https://atom.io/download/atom-shell --abi=72"
   },
   "repository": {
     "type": "git",
@@ -21,7 +22,8 @@
   "dependencies": {
     "electron-rebuild": "^2.3.5",
     "node-api": "^0.0.1",
-    "three": "^0.127.0"
+    "three": "^0.127.0",
+    "robotjs": "git+https://github.com/octalmage/robotjs.git"
   },
   "devDependencies": {
     "electron": "^11.2.0"
