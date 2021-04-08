@@ -9,9 +9,9 @@ const env = process.env;
 // console.log(nodeAbi.getAbi('11.4.2', 'electron'));
 // console.log(nodeAbi.getTarget('85', 'electron'));
 
-ioHook.on('mousemove', event => {
-  console.log(event);
-});
+// ioHook.on('mousemove', event => {
+//   console.log(event);
+// });
 
 app.main_params = {
 	robot: robot,
