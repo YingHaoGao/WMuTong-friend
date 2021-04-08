@@ -1,5 +1,5 @@
 const { remote, ipcRenderer } = require('electron');
-const { robot } = remote.app.main_params;
+const { robot, ioHook } = remote.app.main_params;
 
 function init() {
 	var operationInterval;
@@ -40,9 +40,12 @@ function init() {
 	// idleAction, walkAction, runAction
 	window.animation = 'idleAction';
 
-	elHtml.onmousemove = function(){
-		addGradeFn('mousemoveObj');
-	};
+	// elHtml.onmousemove = function(){
+	// 	addGradeFn('mousemoveObj');
+	// };
+	// ioHook.on('mousemove', event => {
+	//   console.log(event);
+	// });
 
 	decrease();
 
