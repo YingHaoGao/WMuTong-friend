@@ -5,6 +5,7 @@ function init() {
 	var operationInterval;
 	var operationTime = 1000;
 	var prepareIng = false;
+	var decreaseGrade = 2;
 	var nextPrepare;
 	var gradeArr = [
 		{ key: 'idleAction', grade: 0, time: 2 },
@@ -148,7 +149,7 @@ function init() {
 		operationInterval && clearInterval(operationInterval);
 		operationInterval = setInterval(() => {
 			if(operationGradeVal > 0) {
-				operationGrade.val -= 3;
+				operationGrade.val -= decreaseGrade;
 			}
 		}, operationTime);
 	};
