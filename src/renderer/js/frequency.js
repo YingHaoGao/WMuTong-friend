@@ -4,7 +4,13 @@ const { robot, ioHook, globalShortcut } = remote.app.main_params;
 function init() {
 	var operationInterval;
 	var operationTime = 1000;
-	var gradeArr = [ { key: 'idleAction', grade: 0 }, { key: 'walkAction', grade: 50 }, { key: 'runAction', grade: 150 } ];
+	var prepareIng = false;
+	var nextPrepare;
+	var gradeArr = [
+		{ key: 'idleAction', grade: 0, time: 2 },
+		{ key: 'walkAction', grade: 50, time: 2 },
+		{ key: 'runAction', grade: 200, time: 2 }
+	];
 	var mousemoveObj = { preTime: 0, interval: 300, addGrade: 1 };
 	var mousedownObj = { preTime: 0, interval: 0, addGrade: 3 };
 	var mousewheelObj = { preTime: 0, interval: 300, addGrade: 1 };
@@ -18,18 +24,44 @@ function init() {
 			operationGradeVal = v;
 			elConsole.innerHTML = v;
 
+			function timeout(t) {
+				setTimeout(() => {
+					if(nextPrepare) {
+						nextPrepare();
+					} else {
+						prepareIng = false;
+					}
+				}, t * 1000)
+			};
+
 			for(let i = 0; i < gradeArr.length; i++) {
 				let nextGrade = gradeArr[i+1];
 				if(
 					v > gradeArr[i].grade &&
-					(nextGrade ? v <= nextGrade.grade : true)
+					(nextGrade ? (v <= nextGrade.grade) : true)
 					) {
-
-					elConsole.innerHTML = v + '  ' + window.animation  + '  ' + gradeArr[i].key;
+					consoleInner({ v, animation: window.animation, key: gradeArr[i].key, prepareIng });
 					if(gradeArr[i].key != window.animation) {
-						elConsole.innerHTML = v + '  ' + window.animation  + '  ' + gradeArr[i].key;
-						window.prepareCrossFade(window.actions[window.animation], window.actions[gradeArr[i].key], 1.0);
-						window.animation = gradeArr[i].key;
+						consoleInner({ v, animation: window.animation, key: gradeArr[i].key, prepareIng });
+
+						console.log(v, window.animation, gradeArr[i].key, prepareIng)
+						if(!prepareIng) {
+							prepareIng = true;
+
+							window.prepareCrossFade(window.actions[window.animation], window.actions[gradeArr[i].key], gradeArr[i].time);
+							window.animation = gradeArr[i].key;
+							timeout(gradeArr[i].time);
+						} else {
+							nextPrepare = function() {
+								nextPrepare = undefined;
+								prepareIng = true;
+								console.log('nextPrepare', v, window.animation, gradeArr[i].key, prepareIng)
+								consoleInner({ v, animation: window.animation, key: gradeArr[i].key, prepareIng });
+								window.prepareCrossFade(window.actions[window.animation], window.actions[gradeArr[i].key], gradeArr[i].time);
+								window.animation = gradeArr[i].key;
+								timeout(gradeArr[i].time);
+							};
+						}
 					}
 					break;
 				}
@@ -49,6 +81,14 @@ function init() {
 
 	decrease();
 
+	// console
+	function consoleInner(obj) {
+		let s = '';
+		Object.keys(obj).map( k => {
+			s += obj[k] + '  ';
+		});
+		elConsole.innerHTML = s;
+	};
 	// 紧迫程度 - 递增
 	function addGradeFn(key) {
 		let time = new Date().getTime();
