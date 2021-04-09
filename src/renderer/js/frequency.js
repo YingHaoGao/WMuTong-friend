@@ -19,6 +19,7 @@ function init() {
 		mousemoveObj, mouseclickObj, mousewheelObj, keydownObj
 	};
 	var operationGradeVal = 0;
+	var operationGradeTypeParams = {};
 	var elConsole = document.getElementById('console');
 	var elHtml = document.getElementById('html');
 	var operationGrade = Object.defineProperty({}, 'val', {
@@ -26,6 +27,8 @@ function init() {
 		set(v) {
 			operationGradeVal = v;
 			elConsole.innerHTML = v;
+
+			consoleInner({ v, ...operationGradeTypeParams });
 
 			function timeout(t) {
 				setTimeout(() => {
@@ -43,11 +46,7 @@ function init() {
 					v > gradeArr[i].grade &&
 					(nextGrade ? (v <= nextGrade.grade) : true)
 					) {
-					consoleInner({ v, animation: window.animation, key: gradeArr[i].key, prepareIng });
 					if(gradeArr[i].key != window.animation) {
-						consoleInner({ v, animation: window.animation, key: gradeArr[i].key, prepareIng });
-
-						console.log(v, window.animation, gradeArr[i].key, prepareIng)
 						if(!prepareIng) {
 							prepareIng = true;
 
@@ -58,8 +57,6 @@ function init() {
 							nextPrepare = function() {
 								nextPrepare = undefined;
 								prepareIng = true;
-								console.log('nextPrepare', v, window.animation, gradeArr[i].key, prepareIng)
-								consoleInner({ v, animation: window.animation, key: gradeArr[i].key, prepareIng });
 								window.prepareCrossFade(window.actions[window.animation], window.actions[gradeArr[i].key], gradeArr[i].time);
 								window.animation = gradeArr[i].key;
 								timeout(gradeArr[i].time);
@@ -81,26 +78,32 @@ function init() {
 	// 键盘按下
 	ioHook.on('keydown', event => {
 	  // { keycode: 46, rawcode: 8, type: 'keydown', altKey: true, shiftKey: true, ctrlKey: false, metaKey: false }
+	  operationGradeTypeParams = { type: `type: ${event.type}`, keycode: `keycode: ${event.keycode}` };
 	  addGradeFn('keydownObj');
 	});
 	// 键盘抬起
 	ioHook.on('keyup', event => {
 	  // { keycode: 46, rawcode: 8, type: 'keyup', altKey: true, shiftKey: true, ctrlKey: false, metaKey: false }
+	  operationGradeTypeParams = { type: `type: ${event.type}`, keycode: `keycode: ${event.keycode}` };
 	  addGradeFn('mousewheelObj');
 	});
 	// 鼠标移动
 	ioHook.on('mousemove', event => {
 	  // { button: 0, clicks: 0, x: 521, y: 737, type: 'mousemove' }
+	  operationGradeTypeParams = { type: `type: ${event.type}`, x: `x: ${event.x}`, y: `y: ${event.y}` };
 	  addGradeFn('mousemoveObj');
 	});
 	// 鼠标点击
 	ioHook.on('mouseclick', event => {
 	  // { button: 1, clicks: 1, x: 545, y: 696, type: 'mouseclick' }
+	  operationGradeTypeParams = { type: `type: ${event.type}`, x: `x: ${event.x}`, y: `y: ${event.y}` };
 	  addGradeFn('mouseclickObj');
 	});
 	// 鼠标滚轮
 	ioHook.on('mousewheel', event => {
 	  // { amount: 3, clicks: 1, direction: 3, rotation: 1, type: 'mousewheel', x: 466, y: 683 }
+	  operationGradeTypeParams = { type: `type: ${event.type}`, x: `x: ${event.x}`, y: `y: ${event.y}`, 
+	  								amount: `amount: ${event.amount}`, clicks: `clicks: ${event.clicks}` };
 	  addGradeFn('mousewheelObj');
 	});
 	/*
