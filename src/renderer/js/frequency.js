@@ -148,7 +148,7 @@ function init() {
 		operationInterval && clearInterval(operationInterval);
 		operationInterval = setInterval(() => {
 			if(operationGradeVal > 0) {
-				operationGrade.val -= 1;
+				operationGrade.val -= 3;
 			}
 		}, operationTime);
 	};
