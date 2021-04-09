@@ -13,6 +13,8 @@
 
 ## 运行命令
 
-    // .\node_modules\.bin\electron-rebuild -f -w ref
-    npm i
-    npm run rebuild && npm run serve
+    1. npm i
+    2. npm run rebuild
+    3. “electron-v85-win32-x64” 文件放到 “WMuTong-friend\node_modules\_iohook@0.9.0@iohook\builds\” 路径下
+    4. npm run rebuild
+    5. npm run serve
