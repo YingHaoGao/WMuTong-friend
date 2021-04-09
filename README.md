@@ -13,5 +13,6 @@
 
 ## 运行命令
 
-    .\node_modules\.bin\electron-rebuild -f -w ref
+    // .\node_modules\.bin\electron-rebuild -f -w ref
+    npm i
     npm run rebuild && npm run serve
