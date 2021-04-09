@@ -9,7 +9,7 @@ function init() {
 	var gradeArr = [
 		{ key: 'idleAction', grade: 0, time: 2 },
 		{ key: 'walkAction', grade: 50, time: 2 },
-		{ key: 'runAction', grade: 5000, time: 2 }
+		{ key: 'runAction', grade: 2000, time: 2 }
 	];
 	var mousemoveObj = { preTime: 0, interval: 300, addGrade: 1 };
 	var mouseclickObj = { preTime: 0, interval: 0, addGrade: 2 };
