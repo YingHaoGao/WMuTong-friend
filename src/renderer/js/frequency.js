@@ -1,5 +1,5 @@
 const { remote, ipcRenderer } = require('electron');
-const { robot, ioHook } = remote.app.main_params;
+const { robot, ioHook, globalShortcut } = remote.app.main_params;
 
 function init() {
 	var operationInterval;
@@ -102,6 +102,12 @@ function init() {
 		var hex = robot.getPixelColor(mouse.x, mouse.y);
 		console.log("#" + hex + " at x:" + mouse.x + " y:" + mouse.y);
 	};
+
+	/* 快捷键 */
+	// ctrk + i  紧迫程度复位
+	globalShortcut.register('CommandOrControl+i', () => {
+		operationGrade.val = 0;
+	})
 };
 
 ipcRenderer.on('browserWindowCreated', (event, ans) => {

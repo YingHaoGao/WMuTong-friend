@@ -1,4 +1,4 @@
-const { app, BrowserWindow, screen, ipcMain } = require('electron');
+const { app, BrowserWindow, screen, ipcMain, globalShortcut  } = require('electron');
 const path = require('path');
 const fs = require('fs');
 const robot = require("robotjs");
@@ -15,6 +15,7 @@ const env = process.env;
 
 app.main_params = {
 	robot: robot,
+	globalShortcut: globalShortcut,
 	// ioHook: ioHook
 };
 
