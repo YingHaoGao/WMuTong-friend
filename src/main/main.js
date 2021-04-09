@@ -2,10 +2,11 @@ const { app, BrowserWindow, screen, ipcMain, globalShortcut  } = require('electr
 const path = require('path');
 const fs = require('fs');
 const robot = require("robotjs");
-// const ioHook = require('iohook');
+const ioHook = require('iohook');
 const nodeAbi = require("node-abi");
 const env = process.env;
 
+console.log(nodeAbi.getTarget('64', 'node'));
 // console.log(nodeAbi.getAbi('11.4.2', 'electron'));
 // console.log(nodeAbi.getTarget('85', 'electron'));
 
@@ -16,7 +17,7 @@ const env = process.env;
 app.main_params = {
 	robot: robot,
 	globalShortcut: globalShortcut,
-	// ioHook: ioHook
+	ioHook: ioHook
 };
 
 process.env.canvesWidth = 200;

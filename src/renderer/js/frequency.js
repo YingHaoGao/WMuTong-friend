@@ -9,12 +9,15 @@ function init() {
 	var gradeArr = [
 		{ key: 'idleAction', grade: 0, time: 2 },
 		{ key: 'walkAction', grade: 50, time: 2 },
-		{ key: 'runAction', grade: 1000, time: 2 }
+		{ key: 'runAction', grade: 5000, time: 2 }
 	];
 	var mousemoveObj = { preTime: 0, interval: 300, addGrade: 1 };
-	var mousedownObj = { preTime: 0, interval: 0, addGrade: 3 };
+	var mouseclickObj = { preTime: 0, interval: 0, addGrade: 2 };
 	var mousewheelObj = { preTime: 0, interval: 300, addGrade: 1 };
-	var mouseObj = { mousemoveObj: mousemoveObj, mousedownObj: mousedownObj, mousewheelObj: mousewheelObj };
+	var keydownObj = { preTime: 0, interval: 0, addGrade: 1 };
+	var mouseAndKeyObj = {
+		mousemoveObj, mouseclickObj, mousewheelObj, keydownObj
+	};
 	var operationGradeVal = 0;
 	var elConsole = document.getElementById('console');
 	var elHtml = document.getElementById('html');
@@ -72,14 +75,53 @@ function init() {
 	// idleAction, walkAction, runAction
 	window.animation = 'idleAction';
 
-	elHtml.onmousemove = function(){
-		addGradeFn('mousemoveObj');
-	};
-	// ioHook.on('mousemove', event => {
-	//   console.log(event);
-	// });
-
 	decrease();
+
+	/* ioHook 监听 */
+	// 键盘按下
+	ioHook.on('keydown', event => {
+	  // { keycode: 46, rawcode: 8, type: 'keydown', altKey: true, shiftKey: true, ctrlKey: false, metaKey: false }
+	  addGradeFn('keydownObj');
+	});
+	// 键盘抬起
+	ioHook.on('keyup', event => {
+	  // { keycode: 46, rawcode: 8, type: 'keyup', altKey: true, shiftKey: true, ctrlKey: false, metaKey: false }
+	  addGradeFn('mousewheelObj');
+	});
+	// 鼠标移动
+	ioHook.on('mousemove', event => {
+	  // { button: 0, clicks: 0, x: 521, y: 737, type: 'mousemove' }
+	  addGradeFn('mousemoveObj');
+	});
+	// 鼠标点击
+	ioHook.on('mouseclick', event => {
+	  // { button: 1, clicks: 1, x: 545, y: 696, type: 'mouseclick' }
+	  addGradeFn('mouseclickObj');
+	});
+	// 鼠标滚轮
+	ioHook.on('mousewheel', event => {
+	  // { amount: 3, clicks: 1, direction: 3, rotation: 1, type: 'mousewheel', x: 466, y: 683 }
+	  addGradeFn('mousewheelObj');
+	});
+	/*
+		// 鼠标按下
+		ioHook.on('mousedown', event => {
+		  // { button: 1, clicks: 1, x: 545, y: 696, type: 'mousedown' }
+		  addGradeFn('mousedownObj');
+		});
+		// 鼠标抬起
+		ioHook.on('mouseup', event => {
+		  // { button: 1, clicks: 1, x: 545, y: 696, type: 'mouseup' }
+		  addGradeFn('mouseupObj');
+		});
+		// 鼠标拖动
+		ioHook.on('mousedrag', event => {
+		  // { button: 0, clicks: 0, x: 373, y: 683, type: 'mousedrag' }
+		  addGradeFn('mousedragObj');
+		});
+	*/
+
+	ioHook.start();
 
 	// console
 	function consoleInner(obj) {
@@ -93,9 +135,9 @@ function init() {
 	function addGradeFn(key) {
 		let time = new Date().getTime();
 
-		if(time - mouseObj[key].preTime > mouseObj[key].interval) {
-			mouseObj[key].preTime = time;
-			operationGrade.val += mouseObj[key].addGrade;
+		if(time - mouseAndKeyObj[key].preTime > mouseAndKeyObj[key].interval) {
+			mouseAndKeyObj[key].preTime = time;
+			operationGrade.val += mouseAndKeyObj[key].addGrade;
 		}
 	};
 	// 紧迫程度 - 衰退
