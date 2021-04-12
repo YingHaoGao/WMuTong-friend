@@ -14,7 +14,8 @@
 
 ## 打包安装程序
 
-    1. https://www.cnblogs.com/kakayang/p/9559777.html
+    1. NSIS
+    2. https://www.jianshu.com/p/92b6db400933
 
 ## 运行命令
 

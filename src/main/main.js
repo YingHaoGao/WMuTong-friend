@@ -48,7 +48,7 @@ function createWindow() {
 		alwaysOnTop: alwaysOnTop,
 		fullscreenable: false,
 		autoHideMenuBar: true,
-		icon: 'icon/logo.png',
+		icon: 'icon/logo.ico',
 		// backgroundColor: '#2e2c29',
 	    webPreferences: {
 	      nodeIntegration: true,
