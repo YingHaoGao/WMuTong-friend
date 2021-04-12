@@ -63,9 +63,9 @@ function createWindow() {
 	}
 	win.loadFile('src/renderer/index.html');
 
-	setTimeout(() => {
-		win.webContents.send('browserWindowCreated','弹窗渲染完毕');
-	}, 1000);
+	win.webContents.on('did-finish-load', () => {
+	    win.webContents.send('browserWindowCreated', '弹窗渲染完毕!')
+	})
 };
 
 app.on('ready', () => {

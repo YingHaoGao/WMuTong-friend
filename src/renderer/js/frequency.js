@@ -74,6 +74,7 @@ function init() {
 	window.animation = 'idleAction';
 
 	decrease();
+	// robotMouse();
 
 	/* ioHook 监听 */
 	// 键盘按下
@@ -199,7 +200,6 @@ function init() {
 };
 
 ipcRenderer.on('browserWindowCreated', (event, ans) => {
-	robotMouse();
     init();
 })
-setTimeout(init, 1000)
+// setTimeout(init, 1000)
