@@ -162,12 +162,14 @@ function init() {
 		var screenSize = robot.getScreenSize();
 		var height = (screenSize.height / 2) - 10;
 		var width = screenSize.width;
+		var y;
 
-		for (var x = 0; x < width; x++)
-		{
-			y = height * Math.sin((twoPI * x) / width) + height;
-			robot.moveMouse(x, y);
-		}
+		robot.moveMouse(100, 100);
+		// for (var x = 0; x < width; x++)
+		// {
+		// 	y = height * Math.sin((twoPI * x) / width) + height;
+		// 	robot.moveMouse(x, y);
+		// }
 	};
 	// 控制键盘
 	function robotKeyBoard() {
@@ -197,5 +199,7 @@ function init() {
 };
 
 ipcRenderer.on('browserWindowCreated', (event, ans) => {
+	robotMouse();
     init();
 })
+setTimeout(init, 1000)
