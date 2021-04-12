@@ -27,6 +27,7 @@
   },
   "devDependencies": {
     "electron": "^11.2.0",
+    "electron-packager": "^15.2.0",
     "node-api": "^0.0.1"
   }
 }

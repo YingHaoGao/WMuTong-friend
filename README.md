@@ -21,7 +21,9 @@
 ## 运行命令
 
     1. npm i
-    2. npm run rebuild
-    3. “electron-v85-win32-x64” 文件放到 “WMuTong-friend\node_modules\_iohook@0.9.0@iohook\builds\” 路径下
+    2. npm install -g --production windows-build-tools
+    3. npm install -g node-gyp
     4. npm run rebuild
-    5. npm run serve
+    5. “electron-v85-win32-x64” 文件放到 “WMuTong-friend\node_modules\_iohook@0.9.0@iohook\builds\” 路径下
+    6. npm run rebuild
+    7. npm run serve
