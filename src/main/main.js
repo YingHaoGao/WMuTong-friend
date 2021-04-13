@@ -3,10 +3,11 @@ const path = require('path');
 const fs = require('fs');
 const robot = require("robotjs");
 const ioHook = require('iohook');
-// const nodeAbi = require("node-abi");
+const ffi = require('ffi-napi');
 const env = process.env;
 const exeName = path.basename(process.execPath)
 
+// const nodeAbi = require("node-abi");
 // console.log(nodeAbi.getTarget('64', 'node'));
 // console.log(nodeAbi.getAbi('11.4.2', 'electron'));
 // console.log(nodeAbi.getTarget('85', 'electron'));
