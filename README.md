@@ -1,6 +1,9 @@
 ## robot官网
 
-    1. https://www.psvmc.cn/article/2019-10-14-electron-robotjs.html
+    1. npm install node-gyp -g
+    2. cnpm install --global --production windows-build-tools
+    3. 安装 Visual Studio 2019 // https://developer.microsoft.com/zh-cn/windows/downloads/windows-10-sdk/
+    4. 在Visual Studio 2019 安装程序的可选组件中选择“Windows 10 SDK (10.0.19041.0)”
 
 ## iohook官网
 
