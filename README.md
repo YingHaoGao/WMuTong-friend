@@ -12,7 +12,7 @@
 
 ## 打包 exe
 
-    1. npm run pack
+    1. npm run packager
     <!-- 1. https://blog.csdn.net/fukaiit/article/details/90964319 -->
     <!-- 2. "electron-packager . mutong_friend --out mutong_friend --arch=x64 --overwrite --ignore=node_modules" -->
 
