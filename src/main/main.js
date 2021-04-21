@@ -3,9 +3,11 @@ const path = require('path');
 const fs = require('fs');
 const robot = require("robotjs");
 const ioHook = require('iohook');
-const ffi = require('ffi-napi');
+// const ffi = require('ffi-napi');
 const env = process.env;
 const exeName = path.basename(process.execPath)
+
+let win;
 
 // const nodeAbi = require("node-abi");
 // console.log(nodeAbi.getTarget('64', 'node'));
@@ -34,7 +36,7 @@ function createWindow() {
 		alwaysOnTop = false;
 	}
 
-	let win = new BrowserWindow({
+	win = new BrowserWindow({
 		width: width,
 		height: height,
 		x: x,
@@ -69,8 +71,26 @@ function createWindow() {
 	})
 };
 
+/* 生命周期 */
+// Electron完成初始化
 app.on('ready', () => {
 	createWindow();
+});
+// 所有窗口被关闭
+app.on('window-all-closed', () => {
+	win.webContents.send('electron_window-all-closed', '所有窗口被关闭');
+});
+// 应用程序开始,关闭窗口之前
+app.on('before-quit', () => {
+	win.webContents.send('electron_before-quit', '应用程序开始,关闭窗口之前');
+});
+// 所有窗口都已经关闭,应用程序将退出
+app.on('will-quit', () => {
+	win.webContents.send('electron_will-quit', '所有窗口都已经关闭,应用程序将退出');
+});
+// 所有应用程序退出
+app.on('quit', () => {
+	win.webContents.send('electron_quit', '所有应用程序退出');
 });
 
 // 开机自启

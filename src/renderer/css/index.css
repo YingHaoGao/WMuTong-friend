@@ -32,3 +32,6 @@ html {
 	color: #4386f5;
 	font-size: 10px;
 }
+#console>div {
+	margin-bottom: 20px;
+}

@@ -1,5 +1,8 @@
-const { remote, ipcRenderer } = require('electron');
+const { remote, ipcRenderer, desktopCapturer } = require('electron');
 const { robot, ioHook, globalShortcut } = remote.app.main_params;
+
+var consoleList = [];
+var interval;
 
 function init() {
 	var operationInterval;
@@ -7,6 +10,9 @@ function init() {
 	var prepareIng = false;
 	var decreaseGrade = 2;
 	var nextPrepare;
+	var operationGradeVal = 0;
+	var operationGradeTypeParams = {};
+
 	var gradeArr = [
 		{ key: 'idleAction', grade: 0, time: 2 },
 		{ key: 'walkAction', grade: 50, time: 2 },
@@ -16,20 +22,15 @@ function init() {
 	var mouseclickObj = { preTime: 0, interval: 0, addGrade: 2 };
 	var mousewheelObj = { preTime: 0, interval: 300, addGrade: 1 };
 	var keydownObj = { preTime: 0, interval: 0, addGrade: 1 };
-	var mouseAndKeyObj = {
-		mousemoveObj, mouseclickObj, mousewheelObj, keydownObj
-	};
-	var operationGradeVal = 0;
-	var operationGradeTypeParams = {};
-	var elConsole = document.getElementById('console');
+	var mouseAndKeyObj = { mousemoveObj, mouseclickObj, mousewheelObj, keydownObj };
+
 	var elHtml = document.getElementById('html');
+
 	var operationGrade = Object.defineProperty({}, 'val', {
 		get() { return operationGradeVal },
 		set(v) {
 			operationGradeVal = v;
-			elConsole.innerHTML = v;
-
-			consoleInner({ v, ...operationGradeTypeParams });
+			consoleInner({ v, ...operationGradeTypeParams }, 0);
 
 			function timeout(t) {
 				setTimeout(() => {
@@ -128,14 +129,6 @@ function init() {
 
 	ioHook.start();
 
-	// console
-	function consoleInner(obj) {
-		let s = '';
-		Object.keys(obj).map( k => {
-			s += obj[k] + '  ';
-		});
-		elConsole.innerHTML = s;
-	};
 	// 紧迫程度 - 递增
 	function addGradeFn(key) {
 		let time = new Date().getTime();
@@ -199,7 +192,207 @@ function init() {
 	})
 };
 
+// 屏幕录制
+function transcribe() {
+	console.log("sources", desktopCapturer)
+	let source;
+	// 获取当前屏幕和应用窗口源信息
+	desktopCapturer.getSources(
+		{ types: ['window', 'screen'] },
+		function(err, sources) {
+			console.log("err", err, sources)
+			error && consoleInner({ '获取窗口源信息失败': JSON.stringify(err) });
+
+			source = sources[0];
+
+			/*首先根据选择的录制源是窗口还是摄像头以不同的方式获取视频流；*/
+			let sourceId = source.id; // 所选择的屏幕或窗口 sourceId
+			let stream = navigator.mediaDevices.getUserMedia({
+				audio: false,
+				video: {
+				    mandatory: {
+					    chromeMediaSource: 'desktop',
+					    chromeMediaSourceId: sourceId,
+					    maxWidth: window.screen.width,
+					    maxHeight: window.screen.height,
+					}
+				}
+			});
+
+			/*因为无法通过直接设置 audio: true 来获取音频，所以需要另外加入麦克风的音轨。*/
+			stream.then(function(Mediastream) {
+				let audioTracks = navigator.mediaDevices
+					.getUserMedia({
+						audio: true,
+						video: false
+					})
+					.then(mediaStream =>{
+						//mediaStream.getAudioTracks()[0];
+						Mediastream.addTrack(mediaStream.getAudioTracks()[0]);
+						createRecorder(Mediastream); // createRecorder() 函数实现见下文
+					});
+			}).catch(err => consoleInner({ 'startRecord error': JSON.stringify(err) }));
+		}
+	);
+
+	// 函数初始化录制
+	let recorder = null;
+	let i=0;
+	function createRecorder(stream) {
+		recorder = new MediaRecorder(stream);
+		recorder.start(10000);
+		// 如果 start 没设置 timeslice，ondataavailable 在 stop 时会触发
+		recorder.ondataavailable = event => {
+		    let blob = new Blob([event.data], {
+		    	type: 'video/mp4',
+		    });
+		    saveMedia(blob);
+		};
+		recorder.onerror = err => {
+	    	console.error(err);
+		};
+
+		setTimeout(() => {
+			consoleInner({ '结束录制': '结束录制' });
+			stopRecord();
+		}, 20000);
+	};
+
+	// 函数结束录制并保存至本地 mp4 文件；
+	function stopRecord() {
+		recorder.stop();
+	}
+	 
+	function saveMedia(blob) {
+		let reader = new FileReader();
+		reader.onload = () => {
+	    	let buffer = new Buffer(reader.result);
+	    	fs.writeFile('test'+i+'.mp4', buffer, {}, (err, res) => {
+	      		if (err) return console.error(err);
+	    	});
+	    	i++;
+	  	};
+		reader.onerror = err => console.error(err);
+		reader.readAsArrayBuffer(blob);
+	}
+};
+// 获取浏览器内存占用情况
+function getPerformance() {
+	let memory = window.performance.memory;
+	let obj = {
+		"可用堆最大体积": memory.jsHeapSizeLimit + ' b<br/>',
+		"已分配堆体积": memory.totalJSHeapSize + ' b<br/>',
+		"当前JS堆活跃段体积": memory.usedJSHeapSize + ' b<br/>',
+	}
+	// jsHeapSizeLimit: 上下文内可用堆的最大体积，以字节计算。
+	// totalJSHeapSize: 已分配的堆体积，以字节计算。
+	// usedJSHeapSize: 当前 JS 堆活跃段（segment）的体积，以字节计算。
+
+	consoleInner(obj, 1);
+}
+
+
+/**
+ * @params obj - 打印的数据  打印结果： key: value
+ * @params idx - 期望打印的位置 相对于 consoleList, 缺省时在consoleList尾部添加
+ * @return idx - 实际打印的位置 相对于 consoleList
+ */
+function consoleInner(obj, idx) {
+	let elConsole = document.getElementById('console');
+	let s = '';
+
+	Object.keys(obj).map( k => {
+		s += k + ': ' + obj[k] + '  ';
+	});
+
+	if(idx || idx === 0) {
+		if(consoleList[idx]) {
+			let Didx = elConsole.getElementsByClassName('console_'+idx)[0];
+			Didx.innerHTML = s;
+			return idx;
+		} else {
+			let Ddiv = document.createElement('div');
+
+			Ddiv.className = 'console_' + idx;
+			Ddiv.innerHTML = s;
+
+			elConsole.appendChild(Ddiv);
+			consoleList[idx] = Ddiv;
+			return idx;
+		}
+	} else {
+		let conLen = consoleList.length;
+		let Ddiv = document.createElement('div');
+
+		Ddiv.className = 'console_' + idx;
+		Ddiv.innerHTML = s;
+
+		elConsole.appendChild(Ddiv);
+		consoleList[conLen] = Ddiv;
+		return conLen;
+	}
+};
+
+/**
+ * 生命计时器
+ * */
+function createInterval(params) {
+	this.params = params || {};
+	this.interval = undefined;
+	this.time = 100;
+
+	this.init();
+};
+createInterval.prototype.init = function() {
+	this.interval = setInterval(() => {
+		let newTime = new Date().getTime();
+
+		Object.keys(this.params).map(k => {
+			if(
+				newTime - this.params[k].before > this.params[k].interval &&
+				this.params[k].repetition > 0 &&
+				this.params[k].fn
+			) {
+				this.params[k].fn();
+				this.params[k].before = newTime;
+				this.params[k].repetition --;
+
+				if(this.params[k].repetition <= 0) {
+					this.unload(this.params[k].id);
+				}
+			}
+		})
+	}, this.time);
+};
+createInterval.prototype.clear = function() {
+	this.interval && clearInterval(this.interval);
+	this.params = {};
+};
+createInterval.prototype.mount = function(params) {
+	params = {
+		id: new Date().getTime(),
+		fn: function() {},
+		interval: 1000,
+		before: 0,
+		repetition: 1, // 0 ~ Infinity
+		...params
+	};
+	this.params[params.id] = params;
+};
+createInterval.prototype.unload = function(id) {
+	delete this.params[id];
+};
+
+
+
 ipcRenderer.on('browserWindowCreated', (event, ans) => {
+	interval = new createInterval();
+	interval.mount({ id: 'getPerformance', repetition: Infinity, fn: getPerformance });
+
     init();
+	transcribe();
+});
+
+ipcRenderer.on('electron_quit', (event, ans) => {
+	interval.clear()
 })
-// setTimeout(init, 1000)
