@@ -66,8 +66,8 @@ function createWindow() {
 	}
 	win.loadFile('src/renderer/index.html');
 
-	win.webContents.on('did-finish-load', () => {
-	    win.webContents.send('browserWindowCreated', '弹窗渲染完毕!')
+	win.webContents.on('did-finish-load', (e) => {
+	    win.webContents.send('browserWindowCreated', '弹窗渲染完毕!');
 	})
 };
 

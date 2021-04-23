@@ -1,7 +1,8 @@
 const { remote, ipcRenderer, desktopCapturer } = require('electron');
 const { robot, ioHook, globalShortcut } = remote.app.main_params;
 
-var consoleList = [];
+import { consoleInner } from './util.js';
+
 var interval;
 
 function init() {
@@ -279,51 +280,8 @@ function getPerformance() {
 	// jsHeapSizeLimit: 上下文内可用堆的最大体积，以字节计算。
 	// totalJSHeapSize: 已分配的堆体积，以字节计算。
 	// usedJSHeapSize: 当前 JS 堆活跃段（segment）的体积，以字节计算。
-
 	consoleInner(obj, 1);
 }
-
-
-/**
- * @params obj - 打印的数据  打印结果： key: value
- * @params idx - 期望打印的位置 相对于 consoleList, 缺省时在consoleList尾部添加
- * @return idx - 实际打印的位置 相对于 consoleList
- */
-function consoleInner(obj, idx) {
-	let elConsole = document.getElementById('console');
-	let s = '';
-
-	Object.keys(obj).map( k => {
-		s += k + ': ' + obj[k] + '  ';
-	});
-
-	if(idx || idx === 0) {
-		if(consoleList[idx]) {
-			let Didx = elConsole.getElementsByClassName('console_'+idx)[0];
-			Didx.innerHTML = s;
-			return idx;
-		} else {
-			let Ddiv = document.createElement('div');
-
-			Ddiv.className = 'console_' + idx;
-			Ddiv.innerHTML = s;
-
-			elConsole.appendChild(Ddiv);
-			consoleList[idx] = Ddiv;
-			return idx;
-		}
-	} else {
-		let conLen = consoleList.length;
-		let Ddiv = document.createElement('div');
-
-		Ddiv.className = 'console_' + idx;
-		Ddiv.innerHTML = s;
-
-		elConsole.appendChild(Ddiv);
-		consoleList[conLen] = Ddiv;
-		return conLen;
-	}
-};
 
 /**
  * 生命计时器
@@ -347,7 +305,7 @@ createInterval.prototype.init = function() {
 			) {
 				this.params[k].fn();
 				this.params[k].before = newTime;
-				this.params[k].repetition --;
+				this.params[k].repetition--;
 
 				if(this.params[k].repetition <= 0) {
 					this.unload(this.params[k].id);
@@ -379,7 +337,8 @@ createInterval.prototype.unload = function(id) {
 
 ipcRenderer.on('browserWindowCreated', (event, ans) => {
 	interval = new createInterval();
-	interval.mount({ id: 'getPerformance', repetition: Infinity, fn: getPerformance });
+	// interval.mount({ id: 'getPerformance', repetition: Infinity, fn: getPerformance });
+	interval.mount({ id: 'getPerformance', repetition: 1, fn: getPerformance });
 
     init();
 	// transcribe();
