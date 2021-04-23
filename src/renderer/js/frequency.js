@@ -81,32 +81,31 @@ function init() {
 	// 键盘按下
 	ioHook.on('keydown', event => {
 	  // { keycode: 46, rawcode: 8, type: 'keydown', altKey: true, shiftKey: true, ctrlKey: false, metaKey: false }
-	  operationGradeTypeParams = { type: `type: ${event.type}`, keycode: `keycode: ${event.keycode}` };
+	  operationGradeTypeParams = { type: event.type, keycode: event.keycode };
 	  addGradeFn('keydownObj');
 	});
-	// 键盘抬起
+	// 键盘抬起 
 	ioHook.on('keyup', event => {
 	  // { keycode: 46, rawcode: 8, type: 'keyup', altKey: true, shiftKey: true, ctrlKey: false, metaKey: false }
-	  operationGradeTypeParams = { type: `type: ${event.type}`, keycode: `keycode: ${event.keycode}` };
+	  operationGradeTypeParams = { type: event.type, keycode: event.keycode };
 	  addGradeFn('mousewheelObj');
 	});
 	// 鼠标移动
 	ioHook.on('mousemove', event => {
 	  // { button: 0, clicks: 0, x: 521, y: 737, type: 'mousemove' }
-	  operationGradeTypeParams = { type: `type: ${event.type}`, x: `x: ${event.x}`, y: `y: ${event.y}` };
+	  operationGradeTypeParams = { type: event.type, x: event.x, y: event.y };
 	  addGradeFn('mousemoveObj');
 	});
 	// 鼠标点击
 	ioHook.on('mouseclick', event => {
 	  // { button: 1, clicks: 1, x: 545, y: 696, type: 'mouseclick' }
-	  operationGradeTypeParams = { type: `type: ${event.type}`, x: `x: ${event.x}`, y: `y: ${event.y}` };
+	  operationGradeTypeParams = { type: event.type, x: event.x, y: event.y };
 	  addGradeFn('mouseclickObj');
 	});
 	// 鼠标滚轮
 	ioHook.on('mousewheel', event => {
 	  // { amount: 3, clicks: 1, direction: 3, rotation: 1, type: 'mousewheel', x: 466, y: 683 }
-	  operationGradeTypeParams = { type: `type: ${event.type}`, x: `x: ${event.x}`, y: `y: ${event.y}`, 
-	  								amount: `amount: ${event.amount}`, clicks: `clicks: ${event.clicks}` };
+	  operationGradeTypeParams = { type: event.type, x: event.x, y: event.y, amount: event.amount, clicks: event.clicks };
 	  addGradeFn('mousewheelObj');
 	});
 	/*
@@ -167,22 +166,16 @@ function init() {
 	};
 	// 控制键盘
 	function robotKeyBoard() {
-		console.log('robotKeyBoard')
-		// Type "Hello World".
 		robot.typeString("Hello World");
 
-		// Press enter.
 		robot.keyTap("enter");
 	};
 	// 获取屏幕
 	function robotScreen() {
 		console.log('robotScreen')
-		// Get mouse position.
 		var mouse = robot.getMousePos();
 
-		// Get pixel color in hex format.
 		var hex = robot.getPixelColor(mouse.x, mouse.y);
-		console.log("#" + hex + " at x:" + mouse.x + " y:" + mouse.y);
 	};
 
 	/* 快捷键 */
@@ -194,14 +187,13 @@ function init() {
 
 // 屏幕录制
 function transcribe() {
-	console.log("sources", desktopCapturer)
 	let source;
+	console.log(desktopCapturer)
 	// 获取当前屏幕和应用窗口源信息
 	desktopCapturer.getSources(
 		{ types: ['window', 'screen'] },
 		function(err, sources) {
-			console.log("err", err, sources)
-			error && consoleInner({ '获取窗口源信息失败': JSON.stringify(err) });
+			error && consoleInner({ '获取窗口源信息失败': JSON.stringify(err) }, 10);
 
 			source = sources[0];
 
@@ -253,9 +245,9 @@ function transcribe() {
 		};
 
 		setTimeout(() => {
-			consoleInner({ '结束录制': '结束录制' });
+			consoleInner({ '结束录制': '结束录制' }, 10);
 			stopRecord();
-		}, 20000);
+		}, 5000);
 	};
 
 	// 函数结束录制并保存至本地 mp4 文件；
@@ -390,7 +382,7 @@ ipcRenderer.on('browserWindowCreated', (event, ans) => {
 	interval.mount({ id: 'getPerformance', repetition: Infinity, fn: getPerformance });
 
     init();
-	transcribe();
+	// transcribe();
 });
 
 ipcRenderer.on('electron_quit', (event, ans) => {
