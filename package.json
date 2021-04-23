@@ -6,7 +6,7 @@
   "scripts": {
     "serve": "electron .",
     "serve-t": "set NODE_ENV=devTools&& electron .",
-    "packager": "electron-packager . mutong_friend --platform=win32 --arch=x64 --app-version=0.0.1 --icon=logo.ico",
+    "packager": "electron-packager . mutong_friend --out tmp --platform=win32 --arch=x64 --app-version=0.0.1 --icon=logo.ico",
     "rebuild": "npm rebuild --runtime=electron --target=11.2.0 --disturl=https://atom.io/download/atom-shell --abi=72"
   },
   "repository": {
