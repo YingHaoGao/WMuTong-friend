@@ -35,3 +35,6 @@ html {
 #console>div {
 	margin-bottom: 20px;
 }
+#gui {
+	display: none;
+}
