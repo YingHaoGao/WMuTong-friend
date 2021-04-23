@@ -4,8 +4,11 @@ const { robot, ioHook, globalShortcut } = remote.app.main_params;
 import { consoleInner } from './util.js';
 
 var interval;
+var elConsole;
 
 function init() {
+	elConsole = document.getElementById('console');
+
 	var operationInterval;
 	var operationTime = 1000;
 	var prepareIng = false;
@@ -147,46 +150,98 @@ function init() {
 			}
 		}, operationTime);
 	};
-	// 控制鼠标
-	function robotMouse() {
-		// Speed up the mouse.
-		robot.setMouseDelay(2);
 
-		var twoPI = Math.PI * 2.0;
-		var screenSize = robot.getScreenSize();
-		var height = (screenSize.height / 2) - 10;
-		var width = screenSize.width;
-		var y;
-
-		robot.moveMouse(100, 100);
-		// for (var x = 0; x < width; x++)
-		// {
-		// 	y = height * Math.sin((twoPI * x) / width) + height;
-		// 	robot.moveMouse(x, y);
-		// }
-	};
-	// 控制键盘
-	function robotKeyBoard() {
-		robot.typeString("Hello World");
-
-		robot.keyTap("enter");
-	};
-	// 获取屏幕
-	function robotScreen() {
-		console.log('robotScreen')
-		var mouse = robot.getMousePos();
-
-		var hex = robot.getPixelColor(mouse.x, mouse.y);
-	};
-
-	/* 快捷键 */
-	// ctrk + i  紧迫程度复位
-	globalShortcut.register('CommandOrControl+i', () => {
-		operationGrade.val = 0;
-	})
+	createShortcut();
+	hideConsoleInner();
+	enableClickPropagation();
 };
 
-// 屏幕录制
+
+
+/**
+ * 快捷键
+ * */
+// 注册快捷键
+function createShortcut() {
+	// 是否启动控制模式
+	var hasControl = false;
+
+	// ctrl + m + t  进入控制模式
+	globalShortcut.register('CommandOrControl+m+t', () => {
+		hasControl = !hasControl;
+
+		if(hasControl) {
+			showConsoleInner();
+			disableClickPropagation();
+		} else {
+			hideConsoleInner();
+			enableClickPropagation();
+		}
+	});
+};
+// 获取浏览器内存占用情况
+function getPerformance() {
+	let memory = window.performance.memory;
+	let obj = {
+		"可用堆最大体积": memory.jsHeapSizeLimit + ' b<br/>',
+		"已分配堆体积": memory.totalJSHeapSize + ' b<br/>',
+		"当前JS堆活跃段体积": memory.usedJSHeapSize + ' b<br/>',
+	}
+	// jsHeapSizeLimit: 上下文内可用堆的最大体积，以字节计算。
+	// totalJSHeapSize: 已分配的堆体积，以字节计算。
+	// usedJSHeapSize: 当前 JS 堆活跃段（segment）的体积，以字节计算。
+	consoleInner(obj, 1);
+};
+// 允许鼠标点击事件传播
+function enableClickPropagation() {
+	ioHook.enableClickPropagation()
+};
+// 禁止鼠标点击事件传播
+function disableClickPropagation() {
+	ioHook.disableClickPropagation()
+};
+// 显示consoleInner
+function showConsoleInner() {
+	elConsole.style.display = 'block';
+};
+// 隐藏consoleInner
+function hideConsoleInner() {
+	elConsole.style.display = 'none';
+};
+// 控制鼠标
+function robotMouse() {
+	// Speed up the mouse.
+	robot.setMouseDelay(2);
+
+	var twoPI = Math.PI * 2.0;
+	var screenSize = robot.getScreenSize();
+	var height = (screenSize.height / 2) - 10;
+	var width = screenSize.width;
+	var y;
+
+	robot.moveMouse(100, 100);
+	// for (var x = 0; x < width; x++)
+	// {
+	// 	y = height * Math.sin((twoPI * x) / width) + height;
+	// 	robot.moveMouse(x, y);
+	// }
+};
+// 控制键盘
+function robotKeyBoard() {
+	robot.typeString("Hello World");
+
+	robot.keyTap("enter");
+};
+// 获取屏幕
+function robotScreen() {
+	var mouse = robot.getMousePos();
+
+	var hex = robot.getPixelColor(mouse.x, mouse.y);
+};
+
+/**
+ * 屏幕录制
+ * */
 function transcribe() {
 	let source;
 	console.log(desktopCapturer)
@@ -269,19 +324,6 @@ function transcribe() {
 		reader.readAsArrayBuffer(blob);
 	}
 };
-// 获取浏览器内存占用情况
-function getPerformance() {
-	let memory = window.performance.memory;
-	let obj = {
-		"可用堆最大体积": memory.jsHeapSizeLimit + ' b<br/>',
-		"已分配堆体积": memory.totalJSHeapSize + ' b<br/>',
-		"当前JS堆活跃段体积": memory.usedJSHeapSize + ' b<br/>',
-	}
-	// jsHeapSizeLimit: 上下文内可用堆的最大体积，以字节计算。
-	// totalJSHeapSize: 已分配的堆体积，以字节计算。
-	// usedJSHeapSize: 当前 JS 堆活跃段（segment）的体积，以字节计算。
-	consoleInner(obj, 1);
-}
 
 /**
  * 生命计时器

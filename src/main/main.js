@@ -91,6 +91,7 @@ app.on('will-quit', () => {
 // 所有应用程序退出
 app.on('quit', () => {
 	win.webContents.send('electron_quit', '所有应用程序退出');
+	globalShortcut.unregisterAll();
 });
 
 // 开机自启
