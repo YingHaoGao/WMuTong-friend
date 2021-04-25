@@ -1,5 +1,6 @@
 const { remote, ipcRenderer, desktopCapturer } = require('electron');
 const { robot, ioHook, globalShortcut } = remote.app.main_params;
+const cp = require("child_process");
 
 import { consoleInner } from './util.js';
 
@@ -87,6 +88,9 @@ function init() {
 	  // { keycode: 46, rawcode: 8, type: 'keydown', altKey: true, shiftKey: true, ctrlKey: false, metaKey: false }
 	  operationGradeTypeParams = { type: event.type, keycode: event.keycode };
 	  addGradeFn('keydownObj');
+
+	  var mt = globalShortcut.isRegistered('CommandOrControl+m+t');
+	  createShortcut(event);
 	});
 	// 键盘抬起 
 	ioHook.on('keyup', event => {
@@ -152,7 +156,6 @@ function init() {
 	};
 
 	createShortcut();
-	hideConsoleInner();
 	enableClickPropagation();
 };
 
@@ -162,22 +165,76 @@ function init() {
  * 快捷键
  * */
 // 注册快捷键
-function createShortcut() {
+function createShortcut(event) {
 	// 是否启动控制模式
 	var hasControl = false;
 
-	// ctrl + m + t  进入控制模式
-	globalShortcut.register('CommandOrControl+m+t', () => {
-		hasControl = !hasControl;
+	// ctrl + alt + m  进入控制模式
+	if(!globalShortcut.isRegistered('CommandOrControl+alt+m')) {
+		globalShortcut.register('CommandOrControl+alt+m', () => {
+			hasControl = !hasControl;
 
-		if(hasControl) {
-			showConsoleInner();
-			disableClickPropagation();
-		} else {
-			hideConsoleInner();
-			enableClickPropagation();
+			if(hasControl) {
+				showConsoleInner();
+				disableClickPropagation();
+			} else {
+				hideConsoleInner();
+				enableClickPropagation();
+			}
+		});
+	} else if(event) {
+		if(event.ctrlkey && event.altKey && keyCode === 77) {
+			hasControl = !hasControl;
+
+			if(hasControl) {
+				showConsoleInner();
+				disableClickPropagation();
+			} else {
+				hideConsoleInner();
+				enableClickPropagation();
+			}
 		}
-	});
+	}
+
+	// ctrl + alt + a  截屏到粘贴板
+	if(!globalShortcut.isRegistered('CommandOrControl+alt+a')) {
+		globalShortcut.register('CommandOrControl+alt+a', () => {
+			if(hasControl) {
+				print();
+			}
+		});
+
+	} else if(event) {
+		if(event.ctrlkey && event.altKey && keyCode === 65) {
+			if(hasControl) {
+				print();
+			}
+		}
+	}
+
+	// ctrl + alt + t  打开tools
+	if(!globalShortcut.isRegistered('CommandOrControl+alt+t')) {
+		globalShortcut.register('CommandOrControl+alt+t', () => {
+			if(hasControl) {
+				remote.currentWindow().toggleDevTools();
+			}
+		});
+
+	} else if(event) {
+		if(event.ctrlkey && event.altKey && keyCode === 84) {
+			if(hasControl) {
+				remote.currentWindow().toggleDevTools();
+			}
+		}
+	}
+};
+// 截图
+function print() {
+	var screen_window = cp.execFile(__dirname + '/lib_exe/PrintScr.exe');
+	screen_window.on('exit', function (code) {
+      // 执行成功返回 1，返回 0 没有截图
+      if (code) mainWindow.webContents.paste()
+    })
 };
 // 获取浏览器内存占用情况
 function getPerformance() {
@@ -194,11 +251,15 @@ function getPerformance() {
 };
 // 允许鼠标点击事件传播
 function enableClickPropagation() {
-	ioHook.enableClickPropagation()
+	// ioHook.enableClickPropagation()
+	let win = remote.getCurrentWindow();
+	win.setIgnoreMouseEvents(true, { forward: true });
 };
 // 禁止鼠标点击事件传播
 function disableClickPropagation() {
-	ioHook.disableClickPropagation()
+	// ioHook.disableClickPropagation()
+	let win = remote.getCurrentWindow();
+	win.setIgnoreMouseEvents(false);
 };
 // 显示consoleInner
 function showConsoleInner() {

@@ -1,5 +1,6 @@
 const { app, BrowserWindow, screen, ipcMain, globalShortcut  } = require('electron');
 const path = require('path');
+const cp = require("child_process");
 const fs = require('fs');
 const robot = require("robotjs");
 const ioHook = require('iohook');
@@ -79,6 +80,7 @@ app.on('ready', () => {
 // 所有窗口被关闭
 app.on('window-all-closed', () => {
 	win.webContents.send('electron_window-all-closed', '所有窗口被关闭');
+	globalShortcut.unregisterAll();
 });
 // 应用程序开始,关闭窗口之前
 app.on('before-quit', () => {
@@ -87,6 +89,7 @@ app.on('before-quit', () => {
 // 所有窗口都已经关闭,应用程序将退出
 app.on('will-quit', () => {
 	win.webContents.send('electron_will-quit', '所有窗口都已经关闭,应用程序将退出');
+	globalShortcut.unregisterAll();
 });
 // 所有应用程序退出
 app.on('quit', () => {
