@@ -7,38 +7,13 @@
 	<script>window.$ = window.jQuery = require('./plugins/jquery-3.3.1.min.js');</script>
 </head>
 <body>
-	<!-- 不可穿透容器 -start- -->
 	<div id="clickThroughElement"></div>
 	<canvas id="mainCanvas" width="800px" height="600px" ></canvas>
 	<div id="console" style="display: none;"></div>
+	<!-- <div id="operateMiss">
+		<div class="operate" name=""></div>
+	</div> -->
 
-	<!-- 不可穿透容器 -end- -->
-
-	<!-- 区域穿透 -start- -->
-	<script>
-		// let win = require('electron').remote.getCurrentWindow();
-		// let el = document.getElementById('html');
-
-		// el.style.width = 200;
-		// el.style.height = 250;
-		
-		// el.addEventListener('mouseenter', (e) => {
-		//   win.setIgnoreMouseEvents(true, { forward: true })
-		// })
-		// el.addEventListener('mouseleave', () => {
-		//   win.setIgnoreMouseEvents(false)
-		// })
-
-		// setTimeout(() => {
-		// 	let el1 = document.getElementsByClassName('dg ac')[0];
-		// 	el1.addEventListener('mouseenter', (e) => {
-		// 	  win.setIgnoreMouseEvents(false)
-		// 	})
-		// 	el1.addEventListener('mouseleave', () => {
-		// 	  win.setIgnoreMouseEvents(true, { forward: true })
-		// 	})
-		// }, 2000);
-	</script>
 	<script type="module" src="./js/scene.js"></script>
 	<!-- <script type="module" src="./js/scene1.js"></script> -->
 	<!-- <script type="module" src="./js/scene2.js"></script> -->

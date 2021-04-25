@@ -4,11 +4,14 @@ const cp = require("child_process");
 
 import { consoleInner } from './util.js';
 
+
+var win;
 var interval;
 var elConsole;
 
 function init() {
 	elConsole = document.getElementById('console');
+	win = remote.getCurrentWindow();
 
 	var operationInterval;
 	var operationTime = 1000;
@@ -176,10 +179,10 @@ function createShortcut(event) {
 
 			if(hasControl) {
 				showConsoleInner();
-				disableClickPropagation();
+				// disableClickPropagation();
 			} else {
 				hideConsoleInner();
-				enableClickPropagation();
+				// enableClickPropagation();
 			}
 		});
 	} else if(event) {
@@ -188,10 +191,10 @@ function createShortcut(event) {
 
 			if(hasControl) {
 				showConsoleInner();
-				disableClickPropagation();
+				// disableClickPropagation();
 			} else {
 				hideConsoleInner();
-				enableClickPropagation();
+				// enableClickPropagation();
 			}
 		}
 	}
@@ -199,31 +202,35 @@ function createShortcut(event) {
 	// ctrl + alt + a  截屏到粘贴板
 	if(!globalShortcut.isRegistered('CommandOrControl+alt+a')) {
 		globalShortcut.register('CommandOrControl+alt+a', () => {
-			if(hasControl) {
+			// if(hasControl) {
 				print();
-			}
+			// }
 		});
 
 	} else if(event) {
 		if(event.ctrlkey && event.altKey && keyCode === 65) {
-			if(hasControl) {
+			// if(hasControl) {
 				print();
-			}
+			// }
 		}
 	}
 
-	// ctrl + alt + t  打开tools
-	if(!globalShortcut.isRegistered('CommandOrControl+alt+t')) {
-		globalShortcut.register('CommandOrControl+alt+t', () => {
-			if(hasControl) {
-				remote.currentWindow().toggleDevTools();
+	// ctrl + alt + c  切换console显示、隐藏
+	if(!globalShortcut.isRegistered('CommandOrControl+alt+c')) {
+		globalShortcut.register('CommandOrControl+alt+c', () => {
+			if(elConsole.style.display == 'none') {
+				showConsoleInner();
+			} else {
+				hideConsoleInner();	
 			}
 		});
 
 	} else if(event) {
-		if(event.ctrlkey && event.altKey && keyCode === 84) {
-			if(hasControl) {
-				remote.currentWindow().toggleDevTools();
+		if(event.ctrlkey && event.altKey && keyCode === 67) {
+			if(elConsole.style.display == 'none') {
+				showConsoleInner();
+			} else {
+				hideConsoleInner();	
 			}
 		}
 	}
@@ -252,18 +259,22 @@ function getPerformance() {
 // 允许鼠标点击事件传播
 function enableClickPropagation() {
 	// ioHook.enableClickPropagation()
-	let win = remote.getCurrentWindow();
 	win.setIgnoreMouseEvents(true, { forward: true });
 };
 // 禁止鼠标点击事件传播
 function disableClickPropagation() {
 	// ioHook.disableClickPropagation()
-	let win = remote.getCurrentWindow();
 	win.setIgnoreMouseEvents(false);
 };
 // 显示consoleInner
 function showConsoleInner() {
 	elConsole.style.display = 'block';
+
+	$(elConsole).off().hover(function(e) {
+		disableClickPropagation();
+	}, function(e) {
+		enableClickPropagation();
+	});
 };
 // 隐藏consoleInner
 function hideConsoleInner() {
@@ -281,11 +292,6 @@ function robotMouse() {
 	var y;
 
 	robot.moveMouse(100, 100);
-	// for (var x = 0; x < width; x++)
-	// {
-	// 	y = height * Math.sin((twoPI * x) / width) + height;
-	// 	robot.moveMouse(x, y);
-	// }
 };
 // 控制键盘
 function robotKeyBoard() {
