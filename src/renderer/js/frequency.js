@@ -310,7 +310,7 @@ function transcribe() {
 	desktopCapturer.getSources(
 		{ types: ['window', 'screen'] },
 		function(err, sources) {
-			error && consoleInner({ '获取窗口源信息失败': JSON.stringify(err) }, 10);
+			error && consoleInner({ '获取窗口源信息失败': err }, 10);
 
 			source = sources[0];
 
@@ -340,7 +340,7 @@ function transcribe() {
 						Mediastream.addTrack(mediaStream.getAudioTracks()[0]);
 						createRecorder(Mediastream); // createRecorder() 函数实现见下文
 					});
-			}).catch(err => consoleInner({ 'startRecord error': JSON.stringify(err) }));
+			}).catch(err => consoleInner({ 'startRecord error': err }));
 		}
 	);
 

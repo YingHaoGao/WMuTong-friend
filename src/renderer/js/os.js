@@ -16,8 +16,8 @@ const totalmem = os.totalmem();
 const sysType = os.type();
 const sysPlatform = os.platform();
 
-consoleInner({ '网络信息': JSON.stringify(networkInterfaces) }, 10);
-consoleInner({ 'CPU信息': JSON.stringify(cpus) }, 11);
-consoleInner({ 'os临时文件夹': JSON.stringify(tmpDir) }, 12);
-consoleInner({ 'OS体系结构': JSON.stringify(arch) }, 13);
-consoleInner({ '从操作系统中检索总内存量': JSON.stringify(totalmem/1048576)+' mb' }, 14);
+consoleInner({ '网络信息': networkInterfaces }, 10);
+consoleInner({ 'CPU信息': cpus }, 11);
+consoleInner({ 'os临时文件夹': tmpDir }, 12);
+consoleInner({ 'OS体系结构': arch }, 13);
+consoleInner({ '从操作系统中检索总内存量': totalmem/1048576+' mb' }, 14);

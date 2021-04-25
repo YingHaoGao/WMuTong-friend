@@ -8,9 +8,20 @@ var consoleInner = function(obj, idx) {
 	let elConsole = document.getElementById('console');
 	let s = '';
 
-	Object.keys(obj).map( k => {
-		s += k + ': ' + obj[k] + '  ';
-	});
+	if(obj.constructor == String) {
+		s = obj;
+	}
+	else if(obj.constructor == Object) {
+		Object.keys(obj).map( k => {
+			s += k + ': ' + JSON.stringify(obj[k]) + '  ';
+		});
+	}
+	else if(obj.constructor == Array) {
+		s = k + ': ' + JSON.stringify(obj[k]) + '  ';
+	}
+	else {
+		s = obj;
+	}
 
 	if(idx || idx === 0) {
 		if(consoleList[idx]) {
