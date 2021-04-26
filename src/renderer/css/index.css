@@ -33,6 +33,16 @@ html {
 	font-size: 10px;
 	max-width: 50%;
 }
+#emotion {
+	display: inline-block;
+	background: none;
+	position: fixed;
+	top: 50px;
+	left: 0px;
+	color: #4386f5;
+	font-size: 10px;
+	max-width: 50%;
+}
 #console>div {
 	margin-bottom: 20px;
 }

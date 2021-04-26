@@ -170,13 +170,14 @@ function init() {
  * 快捷键
  * */
 // 注册快捷键
-function createShortcut(event) {
+function createShortcut(event = {}) {
 	// 是否启动控制模式
 	var hasControl = false;
 
 	// ctrl + alt + m  进入控制模式
-	if(!globalShortcut.isRegistered('CommandOrControl+alt+m')) {
-		globalShortcut.register('CommandOrControl+alt+m', () => {
+	_createShortcut('CommandOrControl+alt+m',
+		(event.ctrlkey && event.altKey && keyCode === 77),
+		() => {
 			hasControl = !hasControl;
 
 			if(hasControl) {
@@ -188,71 +189,49 @@ function createShortcut(event) {
 				hideOperateMiss();
 				enableClickPropagation();
 			}
-		});
-	} else if(event) {
-		if(event.ctrlkey && event.altKey && keyCode === 77) {
-			hasControl = !hasControl;
-
-			if(hasControl) {
-				showConsoleInner();
-				showOperateMiss();
-			} else {
-				hideConsoleInner();
-				hideOperateMiss();
-			}
 		}
-	}
+	);
 
 	// ctrl + alt + a  截屏到粘贴板
-	if(!globalShortcut.isRegistered('CommandOrControl+alt+a')) {
-		globalShortcut.register('CommandOrControl+alt+a', () => {
-			print();
-		});
-
-	} else if(event) {
-		if(event.ctrlkey && event.altKey && keyCode === 65) {
+	_createShortcut('CommandOrControl+alt+a',
+		(event.ctrlkey && event.altKey && keyCode === 65),
+		() => {
 			print();
 		}
-	}
+	);
 
 	// ctrl + alt + c  切换console显示、隐藏
-	if(!globalShortcut.isRegistered('CommandOrControl+alt+c')) {
-		globalShortcut.register('CommandOrControl+alt+c', () => {
-			if(elConsole.style.display == 'none') {
-				showConsoleInner();
-			} else {
-				hideConsoleInner();	
-			}
-		});
-
-	} else if(event) {
-		if(event.ctrlkey && event.altKey && keyCode === 67) {
+	_createShortcut('CommandOrControl+alt+c',
+		(event.ctrlkey && event.altKey && keyCode === 67),
+		() => {
 			if(elConsole.style.display == 'none') {
 				showConsoleInner();
 			} else {
 				hideConsoleInner();	
 			}
 		}
-	}
+	);
 
 	// ctrl + alt + p  录制屏幕 开始/结束
-	if(!globalShortcut.isRegistered('CommandOrControl+alt+p')) {
-		globalShortcut.register('CommandOrControl+alt+p', () => {
-			if(nTranscribe.getIs()) {
-				nTranscribe.stopRecord();
-			} else {
-				nTranscribe.createRecorder();
-			}
-		});
-
-	} else if(event) {
-		if(event.ctrlkey && event.altKey && keyCode === 80) {
+	_createShortcut('CommandOrControl+alt+p',
+		(event.ctrlkey && event.altKey && keyCode === 80),
+		() => {
 			if(nTranscribe.getIs()) {
 				nTranscribe.stopRecord();
 			} else {
 				nTranscribe.createRecorder();
 			}
 		}
+	);
+};
+function _createShortcut(key, eveIf, fn) {
+	if(!globalShortcut.isRegistered(key)) {
+		globalShortcut.register(key, fn);
+
+	} else {
+		try {
+			eveIf && fn();
+		} catch(err) {}
 	}
 };
 // 截图

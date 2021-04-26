@@ -125,7 +125,7 @@ class transcribe {
 			});
 
 			that.recorder = new MediaRecorder(stream);
-			that.recorder.start(1000);
+			that.recorder.start(10000);
 			// 如果 start 没设置 timeslice，ondataavailable 在 stop 时会触发
 			that.recorder.ondataavailable = event => {
 			    let blob = new Blob([event.data], {
