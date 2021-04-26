@@ -1,16 +1,20 @@
 const { remote, ipcRenderer, desktopCapturer } = require('electron');
 const { robot, ioHook, globalShortcut } = remote.app.main_params;
 const cp = require("child_process");
+const fs = require('fs');
 
-import { consoleInner } from './util.js';
+import { consoleInner, transcribe, createInterval } from './util.js';
 
 
 var win;
 var interval;
+var nTranscribe;
 var elConsole;
+var elOperateMiss;
 
 function init() {
 	elConsole = document.getElementById('console');
+	elOperateMiss = document.getElementById('operateMiss');
 	win = remote.getCurrentWindow();
 
 	var operationInterval;
@@ -162,8 +166,6 @@ function init() {
 	enableClickPropagation();
 };
 
-
-
 /**
  * 快捷键
  * */
@@ -179,10 +181,12 @@ function createShortcut(event) {
 
 			if(hasControl) {
 				showConsoleInner();
-				// disableClickPropagation();
+				showOperateMiss();
+				disableClickPropagation();
 			} else {
 				hideConsoleInner();
-				// enableClickPropagation();
+				hideOperateMiss();
+				enableClickPropagation();
 			}
 		});
 	} else if(event) {
@@ -191,10 +195,10 @@ function createShortcut(event) {
 
 			if(hasControl) {
 				showConsoleInner();
-				// disableClickPropagation();
+				showOperateMiss();
 			} else {
 				hideConsoleInner();
-				// enableClickPropagation();
+				hideOperateMiss();
 			}
 		}
 	}
@@ -202,16 +206,12 @@ function createShortcut(event) {
 	// ctrl + alt + a  截屏到粘贴板
 	if(!globalShortcut.isRegistered('CommandOrControl+alt+a')) {
 		globalShortcut.register('CommandOrControl+alt+a', () => {
-			// if(hasControl) {
-				print();
-			// }
+			print();
 		});
 
 	} else if(event) {
 		if(event.ctrlkey && event.altKey && keyCode === 65) {
-			// if(hasControl) {
-				print();
-			// }
+			print();
 		}
 	}
 
@@ -231,6 +231,26 @@ function createShortcut(event) {
 				showConsoleInner();
 			} else {
 				hideConsoleInner();	
+			}
+		}
+	}
+
+	// ctrl + alt + p  录制屏幕 开始/结束
+	if(!globalShortcut.isRegistered('CommandOrControl+alt+p')) {
+		globalShortcut.register('CommandOrControl+alt+p', () => {
+			if(nTranscribe.getIs()) {
+				nTranscribe.stopRecord();
+			} else {
+				nTranscribe.createRecorder();
+			}
+		});
+
+	} else if(event) {
+		if(event.ctrlkey && event.altKey && keyCode === 80) {
+			if(nTranscribe.getIs()) {
+				nTranscribe.stopRecord();
+			} else {
+				nTranscribe.createRecorder();
 			}
 		}
 	}
@@ -280,6 +300,20 @@ function showConsoleInner() {
 function hideConsoleInner() {
 	elConsole.style.display = 'none';
 };
+// 显示操作区域
+function showOperateMiss() {
+	elOperateMiss.style.display = 'block';
+
+	$(elOperateMiss).off().hover(function(e) {
+		disableClickPropagation();
+	}, function(e) {
+		enableClickPropagation();
+	});
+};
+// 隐藏 操作区域
+function hideOperateMiss() {
+	elOperateMiss.style.display = 'none';
+};
 // 控制鼠标
 function robotMouse() {
 	// Speed up the mouse.
@@ -306,151 +340,13 @@ function robotScreen() {
 	var hex = robot.getPixelColor(mouse.x, mouse.y);
 };
 
-/**
- * 屏幕录制
- * */
-function transcribe() {
-	let source;
-	console.log(desktopCapturer)
-	// 获取当前屏幕和应用窗口源信息
-	desktopCapturer.getSources(
-		{ types: ['window', 'screen'] },
-		function(err, sources) {
-			error && consoleInner({ '获取窗口源信息失败': err }, 10);
-
-			source = sources[0];
-
-			/*首先根据选择的录制源是窗口还是摄像头以不同的方式获取视频流；*/
-			let sourceId = source.id; // 所选择的屏幕或窗口 sourceId
-			let stream = navigator.mediaDevices.getUserMedia({
-				audio: false,
-				video: {
-				    mandatory: {
-					    chromeMediaSource: 'desktop',
-					    chromeMediaSourceId: sourceId,
-					    maxWidth: window.screen.width,
-					    maxHeight: window.screen.height,
-					}
-				}
-			});
-
-			/*因为无法通过直接设置 audio: true 来获取音频，所以需要另外加入麦克风的音轨。*/
-			stream.then(function(Mediastream) {
-				let audioTracks = navigator.mediaDevices
-					.getUserMedia({
-						audio: true,
-						video: false
-					})
-					.then(mediaStream =>{
-						//mediaStream.getAudioTracks()[0];
-						Mediastream.addTrack(mediaStream.getAudioTracks()[0]);
-						createRecorder(Mediastream); // createRecorder() 函数实现见下文
-					});
-			}).catch(err => consoleInner({ 'startRecord error': err }));
-		}
-	);
-
-	// 函数初始化录制
-	let recorder = null;
-	let i=0;
-	function createRecorder(stream) {
-		recorder = new MediaRecorder(stream);
-		recorder.start(10000);
-		// 如果 start 没设置 timeslice，ondataavailable 在 stop 时会触发
-		recorder.ondataavailable = event => {
-		    let blob = new Blob([event.data], {
-		    	type: 'video/mp4',
-		    });
-		    saveMedia(blob);
-		};
-		recorder.onerror = err => {
-	    	console.error(err);
-		};
-
-		setTimeout(() => {
-			consoleInner({ '结束录制': '结束录制' }, 10);
-			stopRecord();
-		}, 5000);
-	};
-
-	// 函数结束录制并保存至本地 mp4 文件；
-	function stopRecord() {
-		recorder.stop();
-	}
-	 
-	function saveMedia(blob) {
-		let reader = new FileReader();
-		reader.onload = () => {
-	    	let buffer = new Buffer(reader.result);
-	    	fs.writeFile('test'+i+'.mp4', buffer, {}, (err, res) => {
-	      		if (err) return console.error(err);
-	    	});
-	    	i++;
-	  	};
-		reader.onerror = err => console.error(err);
-		reader.readAsArrayBuffer(blob);
-	}
-};
-
-/**
- * 生命计时器
- * */
-function createInterval(params) {
-	this.params = params || {};
-	this.interval = undefined;
-	this.time = 100;
-
-	this.init();
-};
-createInterval.prototype.init = function() {
-	this.interval = setInterval(() => {
-		let newTime = new Date().getTime();
-
-		Object.keys(this.params).map(k => {
-			if(
-				newTime - this.params[k].before > this.params[k].interval &&
-				this.params[k].repetition > 0 &&
-				this.params[k].fn
-			) {
-				this.params[k].fn();
-				this.params[k].before = newTime;
-				this.params[k].repetition--;
-
-				if(this.params[k].repetition <= 0) {
-					this.unload(this.params[k].id);
-				}
-			}
-		})
-	}, this.time);
-};
-createInterval.prototype.clear = function() {
-	this.interval && clearInterval(this.interval);
-	this.params = {};
-};
-createInterval.prototype.mount = function(params) {
-	params = {
-		id: new Date().getTime(),
-		fn: function() {},
-		interval: 1000,
-		before: 0,
-		repetition: 1, // 0 ~ Infinity
-		...params
-	};
-	this.params[params.id] = params;
-};
-createInterval.prototype.unload = function(id) {
-	delete this.params[id];
-};
-
-
 
 ipcRenderer.on('browserWindowCreated', (event, ans) => {
 	interval = new createInterval();
-	// interval.mount({ id: 'getPerformance', repetition: Infinity, fn: getPerformance });
-	interval.mount({ id: 'getPerformance', repetition: 1, fn: getPerformance });
+	interval.mount({ id: 'getPerformance', repetition: Infinity, fn: getPerformance });
+	nTranscribe = new transcribe({interval});
 
     init();
-	// transcribe();
 });
 
 ipcRenderer.on('electron_quit', (event, ans) => {
