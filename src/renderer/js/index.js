@@ -3,8 +3,10 @@ const { robot, ioHook, globalShortcut } = remote.app.main_params;
 const cp = require("child_process");
 const fs = require('fs');
 
-import { consoleInner, transcribe, createInterval } from '../util/index.js';
-import { body } from '../personate/body/index.js';
+import {
+	consoleInner, transcribe, createInterval, getPerformance
+} from '../util/index.js';
+import { body } from '../personate/index.js';
 
 
 var win;
@@ -236,27 +238,6 @@ function _createShortcut(key, eveIf, fn) {
 		} catch(err) {}
 	}
 };
-// 截图
-function print() {
-	var screen_window = cp.execFile(__dirname + '/lib_exe/PrintScr.exe');
-	screen_window.on('exit', function (code) {
-      // 执行成功返回 1，返回 0 没有截图
-      if (code) mainWindow.webContents.paste()
-    })
-};
-// 获取浏览器内存占用情况
-function getPerformance() {
-	let memory = window.performance.memory;
-	let obj = {
-		"可用堆最大体积": memory.jsHeapSizeLimit + ' b<br/>',
-		"已分配堆体积": memory.totalJSHeapSize + ' b<br/>',
-		"当前JS堆活跃段体积": memory.usedJSHeapSize + ' b<br/>',
-	}
-	// jsHeapSizeLimit: 上下文内可用堆的最大体积，以字节计算。
-	// totalJSHeapSize: 已分配的堆体积，以字节计算。
-	// usedJSHeapSize: 当前 JS 堆活跃段（segment）的体积，以字节计算。
-	consoleInner(obj, 1);
-};
 // 允许鼠标点击事件传播
 function enableClickPropagation() {
 	// ioHook.enableClickPropagation()
@@ -294,31 +275,6 @@ function showOperateMiss() {
 // 隐藏 操作区域
 function hideOperateMiss() {
 	elOperateMiss.style.display = 'none';
-};
-// 控制鼠标
-function robotMouse() {
-	// Speed up the mouse.
-	robot.setMouseDelay(2);
-
-	var twoPI = Math.PI * 2.0;
-	var screenSize = robot.getScreenSize();
-	var height = (screenSize.height / 2) - 10;
-	var width = screenSize.width;
-	var y;
-
-	robot.moveMouse(100, 100);
-};
-// 控制键盘
-function robotKeyBoard() {
-	robot.typeString("Hello World");
-
-	robot.keyTap("enter");
-};
-// 获取屏幕
-function robotScreen() {
-	var mouse = robot.getMousePos();
-
-	var hex = robot.getPixelColor(mouse.x, mouse.y);
 };
 
 

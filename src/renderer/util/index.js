@@ -1,5 +1,7 @@
-const { desktopCapturer } = require('electron');
+const { remote, ipcRenderer, desktopCapturer } = require('electron');
+const { robot, ioHook, globalShortcut } = remote.app.main_params;
 const fs = require('fs');
+const cp = require("child_process");
 
 /**
  * @params obj - 打印的数据  打印结果： key: value
@@ -261,6 +263,63 @@ class fsOperation {
 	}
 };
 
+
+/**
+ * 截图
+ * */
+function print() {
+	var screen_window = cp.execFile(__dirname + '/lib_exe/PrintScr.exe');
+	screen_window.on('exit', function (code) {
+      // 执行成功返回 1，返回 0 没有截图
+      if (code) mainWindow.webContents.paste()
+    })
+};
+
+
+/**
+ * 获取浏览器内存占用情况
+ * */
+function getPerformance() {
+	let memory = window.performance.memory;
+	let obj = {
+		"可用堆最大体积": memory.jsHeapSizeLimit + ' b<br/>',
+		"已分配堆体积": memory.totalJSHeapSize + ' b<br/>',
+		"当前JS堆活跃段体积": memory.usedJSHeapSize + ' b<br/>',
+	}
+	// jsHeapSizeLimit: 上下文内可用堆的最大体积，以字节计算。
+	// totalJSHeapSize: 已分配的堆体积，以字节计算。
+	// usedJSHeapSize: 当前 JS 堆活跃段（segment）的体积，以字节计算。
+	consoleInner(obj, 1);
+};
+
+// 控制鼠标
+function robotMouse() {
+	// Speed up the mouse.
+	robot.setMouseDelay(2);
+
+	var twoPI = Math.PI * 2.0;
+	var screenSize = robot.getScreenSize();
+	var height = (screenSize.height / 2) - 10;
+	var width = screenSize.width;
+	var y;
+
+	robot.moveMouse(100, 100);
+};
+// 控制键盘
+function robotKeyBoard() {
+	robot.typeString("Hello World");
+
+	robot.keyTap("enter");
+};
+// 获取屏幕
+function robotScreen() {
+	var mouse = robot.getMousePos();
+
+	var hex = robot.getPixelColor(mouse.x, mouse.y);
+};
+
 export {
-	consoleInner, transcribe, createInterval, fsOperation
+	consoleInner, transcribe, createInterval, fsOperation,
+	print, getPerformance, robotMouse, robotKeyBoard, robotScreen,
+	
 };

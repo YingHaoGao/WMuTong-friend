@@ -4,7 +4,6 @@ const cp = require("child_process");
 const fs = require('fs');
 const robot = require("robotjs");
 const ioHook = require('iohook');
-// const ffi = require('ffi-napi');
 const env = process.env;
 const exeName = path.basename(process.execPath)
 
