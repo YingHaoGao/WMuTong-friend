@@ -54,7 +54,6 @@ const consoleInner = function(obj, idx) {
 	}
 };
 
-
 /**
  * 屏幕录制
  * */
@@ -221,9 +220,47 @@ class createInterval {
 	unload(id) {
 		delete this.params[id];
 	}
-}
+};
 
+/**
+ * 执行记录
+ * */
+class history {
+	constructor(params = {}) {
+
+	}
+};
+
+/**
+ * 读写
+ * */
+class fsOperation {
+	constructor(params = {}) {
+		this.fs = null;
+		this.ws = null;
+		this.path = params.path;
+	}
+	read(path) {
+		let that = this;
+		return new Promise((resolve, reject) => {
+			that.rs = fs.createReadStream(path);
+			// 读取可读流的内容
+			that.rs.on('data', (chunk) => {
+				resolve(chunk)
+			});
+		});
+	}
+	write(path, str) {
+		let that = this;
+		return new Promise((resolve, reject) => {
+			that.ws = fs.createWriteStream(path);
+			that.ws.write(str, err => {
+				if(err) throw err;
+			})
+		});
+	}
+};
 
 export {
-	consoleInner, transcribe, createInterval
+	consoleInner, transcribe, createInterval, fsOperation
 };

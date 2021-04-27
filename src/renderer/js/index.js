@@ -3,7 +3,8 @@ const { robot, ioHook, globalShortcut } = remote.app.main_params;
 const cp = require("child_process");
 const fs = require('fs');
 
-import { consoleInner, transcribe, createInterval } from './util.js';
+import { consoleInner, transcribe, createInterval } from '../util/index.js';
+import { body } from '../personate/body/index.js';
 
 
 var win;
@@ -75,7 +76,7 @@ function init() {
 								window.animation = gradeArr[i].key;
 								timeout(gradeArr[i].time);
 							};
-						}
+						};
 					}
 					break;
 				}
@@ -164,6 +165,7 @@ function init() {
 
 	createShortcut();
 	enableClickPropagation();
+	body();
 };
 
 /**
@@ -322,7 +324,7 @@ function robotScreen() {
 
 ipcRenderer.on('browserWindowCreated', (event, ans) => {
 	interval = new createInterval();
-	interval.mount({ id: 'getPerformance', repetition: Infinity, fn: getPerformance });
+	// interval.mount({ id: 'getPerformance', repetition: Infinity, fn: getPerformance });
 	nTranscribe = new transcribe({interval});
 
     init();
