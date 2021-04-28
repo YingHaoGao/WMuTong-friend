@@ -2,6 +2,8 @@ const { remote, ipcRenderer, desktopCapturer } = require('electron');
 const { robot, ioHook, globalShortcut } = remote.app.main_params;
 const fs = require('fs');
 const cp = require("child_process");
+const zlib = require('zlib');
+const crypto = require("crypto");
 
 /**
  * @params obj - 打印的数据  打印结果： key: value
@@ -238,27 +240,87 @@ class history {
  * */
 class fsOperation {
 	constructor(params = {}) {
-		this.fs = null;
-		this.ws = null;
-		this.path = params.path;
 	}
+	// 读取
 	read(path) {
 		let that = this;
 		return new Promise((resolve, reject) => {
-			that.rs = fs.createReadStream(path);
+			let data = "";
+			let rs = fs.createReadStream(path);
+
+			rs.setEncoding('UTF8');
 			// 读取可读流的内容
-			that.rs.on('data', (chunk) => {
-				resolve(chunk)
+			rs.on('data', chunk => {
+				data = chunk;
+			});
+			rs.on('end', () => {
+				resolve(data)
+			});
+			rs.on('error', err => {
+				reject(err.stack)
 			});
 		});
 	}
+	// 写入
 	write(path, str) {
 		let that = this;
 		return new Promise((resolve, reject) => {
-			that.ws = fs.createWriteStream(path);
-			that.ws.write(str, err => {
+			let ws = fs.createWriteStream(path);
+
+			ws.write(str, err => {
 				if(err) throw err;
-			})
+			});
+			ws.end();
+
+			ws.on('finish', () => {
+				resolve();
+			});
+			ws.on('error', err => {
+				reject(err.stack);
+			});
+		});
+	}
+	// 压缩
+	gzip(pathIn, pathOut, pswd = 'mutong') {
+		let password = new Buffer(pswd);
+		let encryptStream = crypto.createCipher("aes-256-cbc", password);
+		let gzip = zlib.createGzip();
+		let rs = fs.createReadStream(pathIn);
+		let ws = fs.createWriteStream(pathOut + '.gz');
+
+		return new Promise((resolve, reject) => {
+			rs
+				.pipe(encryptStream)
+				.pipe(gzip)
+				.pipe(ws)
+				.on("finish", () => {
+					resolve();
+				})
+				.on("error", err => {
+					reject(err)
+				});
+		})
+	}
+	// 解压
+	gunzip(pathIn, pathOut, pswd = 'mutong') {
+		let password = new Buffer(pswd);
+		let decipherStream = crypto.createDecipher("aes-256-cbc", password);
+		let gunzip = zlib.createGunzip();
+		let rs = fs.createReadStream(pathIn);
+		let ws = fs.createWriteStream(pathOut);
+
+		// process.stdout.write 终端
+		return new Promise((resolve, reject) => {
+			rs
+			  .pipe(gunzip)
+			  .pipe(decipherStream)
+			  .pipe(ws)
+			  .on("finish", () => {
+			  	resolve()
+			  })
+			  .on("error", err => {
+			  	reject(err)
+			  });
 		});
 	}
 };
@@ -292,7 +354,9 @@ function getPerformance() {
 	consoleInner(obj, 1);
 };
 
-// 控制鼠标
+/**
+ * 控制鼠标
+ * */
 function robotMouse() {
 	// Speed up the mouse.
 	robot.setMouseDelay(2);
@@ -305,13 +369,19 @@ function robotMouse() {
 
 	robot.moveMouse(100, 100);
 };
-// 控制键盘
+
+/**
+ * 控制键盘
+ * */
 function robotKeyBoard() {
 	robot.typeString("Hello World");
 
 	robot.keyTap("enter");
 };
-// 获取屏幕
+
+/**
+ * 获取屏幕
+ * */
 function robotScreen() {
 	var mouse = robot.getMousePos();
 
@@ -321,5 +391,5 @@ function robotScreen() {
 export {
 	consoleInner, transcribe, createInterval, fsOperation,
 	print, getPerformance, robotMouse, robotKeyBoard, robotScreen,
-	
+
 };

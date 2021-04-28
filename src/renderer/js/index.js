@@ -6,7 +6,7 @@ const fs = require('fs');
 import {
 	consoleInner, transcribe, createInterval, getPerformance
 } from '../util/index.js';
-import { body } from '../personate/index.js';
+import { personate } from '../personate/index.js';
 
 
 var win;
@@ -167,7 +167,6 @@ function init() {
 
 	createShortcut();
 	enableClickPropagation();
-	body();
 };
 
 /**
