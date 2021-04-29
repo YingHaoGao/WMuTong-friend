@@ -4,6 +4,7 @@ const fs = require('fs');
 const cp = require("child_process");
 const zlib = require('zlib');
 const crypto = require("crypto");
+const request = require('request-promise');
 
 /**
  * @params obj - 打印的数据  打印结果： key: value
@@ -77,10 +78,9 @@ class transcribe {
 		desktopCapturer.getSources({ types: ['window', 'screen'] })
 			.then(async (sources) => {
 				source = sources[0];
-				console.log(sources)
 				/*首先根据选择的录制源是窗口还是摄像头以不同的方式获取视频流；*/
 				let sourceId = source.id; // 所选择的屏幕或窗口 sourceId
-				console.log(sourceId)
+				
 				let stream = navigator.mediaDevices.getUserMedia({
 					audio: false,
 					video: {
@@ -144,15 +144,14 @@ class transcribe {
 		function saveMedia(blob) {
 			let reader = new FileReader();
 			reader.onload = () => {
-		    	let buffer = new Buffer(reader.result);
-		    	console.log(buffer)
-		    	fs.writeFileSync('test'+i+'.mp4', buffer, {}, (err, res) => {
+		    	let buffer = Buffer.from(reader.result);
+
+		    	fs.writeFile('test'+i+'.mp4', buffer, {}, (err, res) => {
 		      		if (err) return console.error(err);
 		    	});
 		    	i++;
 		  	};
 			reader.onerror = err => console.error(err);
-			console.log(blob)
 			reader.readAsArrayBuffer(blob);
 		};
 	}
@@ -236,9 +235,9 @@ class history {
 };
 
 /**
- * 读写
+ * fs
  * */
-class fsOperation {
+class fsTool {
 	constructor(params = {}) {
 	}
 	// 读取
@@ -325,6 +324,26 @@ class fsOperation {
 	}
 };
 
+/**
+ * cp 
+ * */
+class cpTool {
+	constructor() {
+
+	}
+	cmd(s) {
+		return new Promise((resolve, reject) => {
+			cp.exec(s, (err, stdout, stderr) => {
+				if(err) {
+					reject(err);
+				} else {
+					resolve(stdout);
+				}
+			})
+		})
+	}
+};
+
 
 /**
  * 截图
@@ -388,8 +407,155 @@ function robotScreen() {
 	var hex = robot.getPixelColor(mouse.x, mouse.y);
 };
 
-export {
-	consoleInner, transcribe, createInterval, fsOperation,
-	print, getPerformance, robotMouse, robotKeyBoard, robotScreen,
 
+/**
+ * 允许鼠标点击事件传播
+ * */
+function enableClickPropagation() {
+	let win = remote.getCurrentWindow();
+	// ioHook.enableClickPropagation()
+	win.setIgnoreMouseEvents(true, { forward: true });
+	if($('.disableClick')){
+		$('.disableClick').on('mouseover', () => { win.setIgnoreMouseEvents(false); })
+		$('.disableClick').on('mouseout', () => { win.setIgnoreMouseEvents(true, { forward: true }); })
+	}
+};
+
+/**
+ * 禁止鼠标点击事件传播
+ * */
+function disableClickPropagation() {
+	let win = remote.getCurrentWindow();
+	// ioHook.disableClickPropagation()
+	win.setIgnoreMouseEvents(false);
+};
+
+/**
+ * 翻译
+ * */
+class Translator {
+	constructor() {
+		this.config = {
+			// zh-CHS(中文) || ja(日语) || EN(英文)
+			from: 'zh-CHS',
+			to: 'EN',
+			appKey: '69081ddc1b778fab',
+			secretKey: 'rH75zpJ7fuoHgJ5miue8Tjdco4npV2iB',
+		};
+		this.dom = null;
+	}
+	// md5 加密
+	md5(str) {
+		let crypto_md5 = crypto.createHash("md5");
+		crypto_md5.update(str);
+		return crypto_md5.digest('hex');
+	}
+	getRandomN(roundTo) {
+		return Math.round(Math.random() * roundTo);
+	}
+	// obj 转 url params
+	generateUrlParams(_params) {
+		const paramsData = [];
+		for(const key in _params) {
+			if(_params.hasOwnProperty(key)){
+				paramsData.push(key + '=' + _params[key]);
+			}
+		}
+		return paramsData.join('&');
+	}
+	// 翻译
+	async translate(word) {
+		let youdaoHost = 'http://openapi.youdao.com/api';
+		let encodeURIWord = encodeURI(word);
+		let salt = this.getRandomN(1000);
+		let sign = this.md5(this.config.appKey + word + salt + this.config.secretKey);
+		let paramsJson = {
+			q: encodeURIWord,
+			from: this.config.from,
+			to: this.config.to,
+			appKey: this.config.appKey,
+			salt: salt,
+			sign: sign
+		};
+		let url = `${youdaoHost}?${this.generateUrlParams(paramsJson)}`;
+		let result = await request.get({url});
+
+		/*
+			返回结果：
+				errorCode	text	错误返回码	一定存在
+				query		text	源语言	查询正确时，一定存在
+				translation	Array	翻译结果	查询正确时，一定存在
+				basic		text	词义	基本词典，查词时才有
+				web			Array	词义	网络释义，该结果不一定存在
+				l			text	源语言和目标语言	一定存在
+				dict		text	词典deeplink	查询语种为支持语言时，存在
+				webdict		text	webdeeplink	查询语种为支持语言时，存在
+				tSpeakUrl	text	翻译结果发音地址	翻译成功一定存在，需要应用绑定语音合成实例才能正常播放否则返回110错误码
+				speakUrl	text	源语言发音地址	翻译成功一定存在，需要应用绑定语音合成实例才能正常播放否则返回110错误码
+				returnPhrase	Array	单词校验后的结果	主要校验字母大小写、单词前含符号、中文简繁体
+		*/ 
+		return JSON.parse(result);
+	}
+	// 插入dom
+	createDom(x, y) {
+		if($('disableClick[name=translator]').length > 0) {
+			this.removeDom();
+		}
+
+		this.dom = $(
+				`<div class="disableClick" name="translator" style="position:fixed;top:${parseInt(y)-100}px;left:${parseInt(x)-100}px;width: 200px;">
+					<div class="input"><input type="text"/><input type="button" name="close" value="关闭"/></div>
+					<div><input type="button" name="from" value="中-英"/></div>
+					<div class="text"></div>
+				</div>`
+			);
+		let $input = this.dom.find('input[type=text]');
+		let $from = this.dom.find('input[name=from]');
+		let $close = this.dom.find('input[name=close]');
+		let $text = this.dom.find('.text');
+
+		$('body').append(this.dom);
+		enableClickPropagation();
+
+		$from.off().on('click', e => {
+			if($from.val() == '中-英') {
+				this.config.from = 'EN';
+				this.config.to = 'zh-CHS';
+				$from.val('英-中');
+			} else {
+				this.config.from = 'zh-CHS';
+				this.config.to = 'EN';
+				$from.val('中-英');
+			}
+		});
+		$input.off().on('keydown', e => {
+			if(e.keyCode == 13) {
+				this.translate($input.val()).then(res => {
+					let s = '';
+					res['translation'].map(item => {
+						s += item;
+					});
+					$text.text(s);
+				})
+			}
+		});
+		$close.off().on('click', e => {
+			this.removeDom();
+		})
+	}
+	// 移除dom
+	removeDom() {
+		if(this.dom) {
+			this.dom.remove();
+			this.dom = null;
+			enableClickPropagation();
+		}
+	}
+}
+
+
+export {
+	consoleInner, transcribe, createInterval, 
+	print, getPerformance, robotMouse, robotKeyBoard, robotScreen,
+	fsTool, cpTool, Translator, disableClickPropagation, enableClickPropagation
 };

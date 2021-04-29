@@ -1,10 +1,11 @@
-const { remote, ipcRenderer, desktopCapturer } = require('electron');
+const { remote, ipcRenderer, desktopCapturer, app } = require('electron');
 const { robot, ioHook, globalShortcut } = remote.app.main_params;
 const cp = require("child_process");
 const fs = require('fs');
 
 import {
-	consoleInner, transcribe, createInterval, getPerformance
+	consoleInner, transcribe, createInterval, getPerformance,
+	Translator, disableClickPropagation, enableClickPropagation
 } from '../util/index.js';
 import { personate } from '../personate/index.js';
 
@@ -14,11 +15,15 @@ var interval;
 var nTranscribe;
 var elConsole;
 var elOperateMiss;
+var mousedown, mouseselect;
+var nTranscribe;
+var mouseLocat = {};
 
 function init() {
 	elConsole = document.getElementById('console');
 	elOperateMiss = document.getElementById('operateMiss');
 	win = remote.getCurrentWindow();
+	nTranscribe = new Translator();
 
 	var operationInterval;
 	var operationTime = 1000;
@@ -112,7 +117,30 @@ function init() {
 	ioHook.on('mousemove', event => {
 	  // { button: 0, clicks: 0, x: 521, y: 737, type: 'mousemove' }
 	  operationGradeTypeParams = { type: event.type, x: event.x, y: event.y };
+	  mouseLocat = { x: event.x, y: event.y };
 	  addGradeFn('mousemoveObj');
+
+	  if(mousedown) {
+	  	mouseselect = true;
+	  }
+	});
+	// 鼠标按下
+	ioHook.on('mousedown', event => {
+	  // { button: 1, clicks: 1, x: 545, y: 696, type: 'mousedown' }
+	  mousedown = true;
+	});
+	// 鼠标抬起
+	ioHook.on('mouseup', event => {
+	  // { button: 1, clicks: 1, x: 545, y: 696, type: 'mouseup' }
+	  if(mouseselect) {
+	  	let textContent = window.getSelection();
+	  }
+	  mouseselect = false;
+	  mousedown = false;
+	});
+	// 鼠标拖动
+	ioHook.on('mousedrag', event => {
+	  // { button: 0, clicks: 0, x: 373, y: 683, type: 'mousedrag' }
 	});
 	// 鼠标点击
 	ioHook.on('mouseclick', event => {
@@ -126,23 +154,6 @@ function init() {
 	  operationGradeTypeParams = { type: event.type, x: event.x, y: event.y, amount: event.amount, clicks: event.clicks };
 	  addGradeFn('mousewheelObj');
 	});
-	/*
-		// 鼠标按下
-		ioHook.on('mousedown', event => {
-		  // { button: 1, clicks: 1, x: 545, y: 696, type: 'mousedown' }
-		  addGradeFn('mousedownObj');
-		});
-		// 鼠标抬起
-		ioHook.on('mouseup', event => {
-		  // { button: 1, clicks: 1, x: 545, y: 696, type: 'mouseup' }
-		  addGradeFn('mouseupObj');
-		});
-		// 鼠标拖动
-		ioHook.on('mousedrag', event => {
-		  // { button: 0, clicks: 0, x: 373, y: 683, type: 'mousedrag' }
-		  addGradeFn('mousedragObj');
-		});
-	*/
 
 	ioHook.start();
 
@@ -226,26 +237,23 @@ function createShortcut(event = {}) {
 			}
 		}
 	);
+
+	// ctrl + alt + t  翻译
+	_createShortcut('CommandOrControl+alt+t',
+		(event.ctrlkey && event.altKey && keyCode === 84),
+		() => {
+			nTranscribe.createDom(mouseLocat.x, mouseLocat.y);
+		}
+	);
 };
 function _createShortcut(key, eveIf, fn) {
 	if(!globalShortcut.isRegistered(key)) {
 		globalShortcut.register(key, fn);
-
 	} else {
 		try {
 			eveIf && fn();
 		} catch(err) {}
 	}
-};
-// 允许鼠标点击事件传播
-function enableClickPropagation() {
-	// ioHook.enableClickPropagation()
-	win.setIgnoreMouseEvents(true, { forward: true });
-};
-// 禁止鼠标点击事件传播
-function disableClickPropagation() {
-	// ioHook.disableClickPropagation()
-	win.setIgnoreMouseEvents(false);
 };
 // 显示consoleInner
 function showConsoleInner() {
