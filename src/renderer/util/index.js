@@ -503,7 +503,7 @@ class Translator {
 		}
 
 		this.dom = $(
-				`<div class="disableClick" name="translator" style="position:fixed;top:${parseInt(y)-100}px;left:${parseInt(x)-100}px;width: 200px;">
+				`<div class="disableClick" name="translator" style="position:fixed;top:${y-100}px;left:${x-100}px;width: 200px;">
 					<div class="input"><input type="text"/><input type="button" name="close" value="关闭"/></div>
 					<div><input type="button" name="from" value="中-英"/></div>
 					<div class="text"></div>
