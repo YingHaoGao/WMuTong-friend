@@ -498,7 +498,7 @@ class Translator {
 	}
 	// 插入dom
 	createDom(x, y) {
-		if($('disableClick[name=translator]').length > 0) {
+		if($('.disableClick[name=translator]').length > 0) {
 			this.removeDom();
 		}
 
