@@ -295,4 +295,4 @@ ipcRenderer.on('browserWindowCreated', (event, ans) => {
 
 ipcRenderer.on('electron_quit', (event, ans) => {
 	interval.clear()
-})
+});

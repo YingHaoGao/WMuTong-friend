@@ -22,6 +22,7 @@
   "dependencies": {
     "electron-rebuild": "^2.3.5",
     "iohook": "^0.9.0",
+    "request": "^2.88.2",
     "request-promise": "^4.2.6",
     "robotjs": "git+https://github.com/octalmage/robotjs.git",
     "three": "^0.127.0"
