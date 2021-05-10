@@ -66,9 +66,9 @@ function createWindow() {
 	    }
 	});
 
-	// if(env.NODE_ENV == 'devTools') {
+	if(env.NODE_ENV == 'devTools') {
 		win.webContents.openDevTools();
-	// }
+	}
 	win.loadFile('src/renderer/index.html');
 
 	win.webContents.on('did-finish-load', (e) => {
