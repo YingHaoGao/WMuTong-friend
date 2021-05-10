@@ -42,8 +42,8 @@ nWs.on('message', msg => {
 
 			if(m3u8Str) {
 				m3u8Str = m3u8Str[0];
-				let noti = new Notification("检测到 m3u8 资源",
-					{ body: `发现名为 ${title} 的m3u8资源。点击通知开始下载` });
+				let noti = new Notification("检测到m3u8资源",
+					{ body: `发现名为${title}的m3u8资源。点击通知开始下载` });
 				// let noti = new cteateNotification({ title: "检测到 m3u8 资源", body: `发现名为 ${title} 的m3u8资源。点击通知开始下载` });
 				noti.onclick = () => {
 					let nCpTool = new cpTool();
@@ -52,9 +52,10 @@ nWs.on('message', msg => {
 						consoleInner({'stdout': res}, 10)
 					}
 					nCpTool.stderrData = err => {
-						consoleInner({ 'stderr': err }, 11)
+						console.log('ffmpeg -i '+msg.src+' -c copy -bsf:a aac_adtstoasc C:\/Users\/po\/Downloads\/'+msg.id+'.mp4', err);
+						consoleInner({ 'stderr': err })
 					}
-					nCpTool.cmd(`ffmpeg -i ${msg.src} -c copy -bsf:a aac_adtstoasc C:\/Users\/po\/Downloads\/${msg.id}.mp4`);
+					nCpTool.cmd({ cwd: `ffmpeg -i ${msg.src} -c copy -bsf:a aac_adtstoasc C:\/Users\/po\/Downloads\/${msg.id}.mp4`, windowsHide: false });
 				}
 			}
 		}
