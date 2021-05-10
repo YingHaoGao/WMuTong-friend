@@ -30,7 +30,7 @@ window.onload=function(){
 
 			if(busClient.readyState === 1) {
 				busClient.send(JSON.stringify({
-					id: 'source-src', src, title
+					id: 'source-src', src, title, key: k
 				}));
 				delete awaitSourceId[k];
 			} else {

@@ -52,10 +52,14 @@ nWs.on('message', msg => {
 						consoleInner({'stdout': res}, 10)
 					}
 					nCpTool.stderrData = err => {
-						console.log('ffmpeg -i '+msg.src+' -c copy -bsf:a aac_adtstoasc C:\/Users\/po\/Downloads\/'+msg.id+'.mp4', err);
+						console.log('ffmpeg -i '+msg.src+' -c copy -bsf:a aac_adtstoasc C:\/Users\/po\/Downloads\/'+msg.key+'.mp4', err);
 						consoleInner({ 'stderr': err })
 					}
-					nCpTool.cmd({ cwd: `ffmpeg -i ${msg.src} -c copy -bsf:a aac_adtstoasc C:\/Users\/po\/Downloads\/${msg.id}.mp4`, windowsHide: false });
+					nCpTool.execClose = code => {
+						console.log(code);
+						consoleInner({ 'execClose': code })
+					}
+					nCpTool.cmd(`ffmpeg -i ${msg.src} -c copy -bsf:a aac_adtstoasc C:\/Users\/po\/Downloads\/${msg.key}.mp4`);
 				}
 			}
 		}
