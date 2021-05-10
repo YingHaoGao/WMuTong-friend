@@ -7,7 +7,7 @@
 <script type="text/javascript">
 $('#locaUrl').off().on('keydown', e => {
 	if(e.keyCode == 13) {
-		window.location.href = $('#locaUrl').val();
+		$('#webview').attr('src', $('#locaUrl').val());
 	}
 });
 $('#webview')[0].addEventListener('did-stop-loading',function(){
