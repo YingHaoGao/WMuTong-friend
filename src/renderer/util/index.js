@@ -1,10 +1,17 @@
 const { remote, ipcRenderer, desktopCapturer } = require('electron');
-const { robot, ioHook, globalShortcut } = remote.app.main_params;
+const { session } = remote;
+const {
+	robot, ioHook, globalShortcut, dialog, Notification, BrowserWindow
+} = remote.app.main_params;
 const fs = require('fs');
 const cp = require("child_process");
 const zlib = require('zlib');
 const crypto = require("crypto");
 const request = require('request-promise');
+const path = require('path');
+const iconv = require('iconv-lite');
+const rUrl = require('url');
+const WebSocket = require('ws');
 
 /**
  * @params obj - 打印的数据  打印结果： key: value
@@ -50,7 +57,7 @@ const consoleInner = function(obj, idx) {
 		let conLen = consoleList.length;
 		let Ddiv = document.createElement('div');
 
-		Ddiv.className = 'console_' + idx;
+		Ddiv.className = 'console_' + conLen;
 		Ddiv.innerHTML = s;
 
 		elConsole.appendChild(Ddiv);
@@ -328,21 +335,61 @@ class fsTool {
  * cp 
  * */
 class cpTool {
-	constructor() {
-
+	constructor(params) {
+		return this.exec;
 	}
 	cmd(s) {
-		return new Promise((resolve, reject) => {
-			cp.exec(s, (err, stdout, stderr) => {
-				if(err) {
-					reject(err);
-				} else {
-					resolve(stdout);
-				}
-			})
-		})
+		if(typeof s === 'string') {
+			this.exec = cp.exec(s, { encoding:'GBK' });
+		} else {
+			this.exec = cp.exec(s.cwd, { encoding:'GBK', ...s });
+		}
+
+		// 正常可执行程序输出
+		this.exec.stdout.on('data', res => {
+			this.stdoutData(res);
+		});
+		// 错误可执行程序输出
+		this.exec.stderr.on('data', err => {
+			err = iconv.decode(Buffer.concat([err]), 'GBK');
+			this.stderrData(err);
+		});
+		// 退出后的输出
+		this.exec.on('close', this.execClose);
 	}
+	stdoutData(res) {}
+	stderrData(err) {}
+	execClose(code) {}
 };
+
+/**
+ * session
+ * */
+ class sessionTool {
+ 	constructor(params = { urls: [] }) {
+ 		this.urls = params.urls;
+ 		this.sendHeaderCall = params.sendHeaderCall || function(){};
+
+ 		this.defaultSession();
+ 	}
+ 	defaultSession() {
+ 		const filter = {
+   			urls: this.urls
+		}
+
+		session.defaultSession.webRequest.onBeforeSendHeaders(filter, (details, callback) => {
+			this.sendHeaderCall(details);
+	   		callback({cancel: false, requestHeaders: details.requestHeaders})
+	 	})
+
+		session.defaultSession.webRequest.onCompleted(filter, (details, callback) => {
+			this.completedCall(details);
+	   		// callback({cancel: false, requestHeaders: details.requestHeaders})
+	 	})
+ 	}
+ 	sendHeaderCall(){}
+ 	completedCall(){}
+ };
 
 
 /**
@@ -553,9 +600,134 @@ class Translator {
 	}
 }
 
+/**
+ * 系统通知
+ * */
+class cteateNotification {
+	constructor(options) {
+		// title String (optional) - 通知的标题，显示时将显示在通知窗口的顶部.
+		// subtitleString (可选) 通知的副标题, 显示在标题下面。 macOS
+		// body String (optional) - 通知的正文，将显示在标题或副标题下面.
+		// silentBoolean (可选) 在显示通知时是否发出系统提示音。
+		// icon(String | NativeImage ) (可选) 用于在该通知上显示的图标。
+		// hasReplyBoolean (可选) 是否在通知中添加一个答复选项。 macOS
+		// timeoutType String (optional) Linux Windows - 通知的超时时间。可以是'default'或'never'.
+		// replyPlaceholderString (可选) 答复输入框中的占位符。 macOS
+		// sound String (可选) 显示通知时播放的声音文件的名称。 macOS
+		// urgency String (optional) Linux - 通知的紧急级别。可以是“正常”、“关键”或“低”.
+		// actions NotificationAction[] (可选) macOS - 要添加到通知中的操作 请阅读 NotificationAction文档来了解可用的操作和限制。
+		// closeButtonText String (optional) macOS - 警告的关闭按钮的自定义标题。空字符串将导致使用默认的本地化文本.
+		// toastXml String (optional) Windows - Windows上的通知的自定义描述将取代上面的所有属性。提供对通知的设计和行为的完全定制
+		
+		this.options = {
+			icon: path.join(__dirname, '../../icon/logo.png'),
+			...options
+		};
+		this.not = new Notification(this.options.title, this.options);
+		return this.not;
+	}
+}
+
+/**
+ * 创建浏览器窗口
+ * */
+class createWindow {
+	constructor() {
+		this.win = new BrowserWindow({
+			width: 400,
+			height: 400,
+			center: true,
+			frame: true,
+			useContentSize: true,
+			transparent: true,
+			resizable: true,
+			movable: true,
+			minimizable: true,
+			maximizable: false,
+			closable: true,
+			fullscreenable: false,
+			autoHideMenuBar: true,
+			darkTheme: true,
+			fullscreen: false,
+		    webPreferences: {
+		      webviewTag: true,
+		      nodeIntegration: true,
+		      enableRemoteModule: true,
+		      webSecurity: false,
+		      nodeIntegrationInWorker: true,
+		      nodeIntegrationInSubFrames: true,
+		      allowRunningInsecureContent: true
+		    }
+		});
+		this.win.setBackgroundColor('#000000')
+
+		this.win.loadURL(
+		  rUrl.format({
+		    pathname: path.join(__dirname, './util/html/webview.html'),
+		    protocol: 'file',
+		    slashes: true,
+		  })
+		);
+		return this.win;
+	}
+}
+
+
+/**  -等待研究-
+ * xhr_proxy.js
+ * 通过劫持原生XMLHttpRequest实现对页面ajax请求的监听
+ * @author binaryfire
+ */
+class xhr_proxy {
+	constructor() {
+		this.READY_STATE_CHANGE = 'readystatechange';
+		this.gHandlerList = [];
+		this.gIsInited = false;
+	}
+}
+
+/**
+ * ws
+ * */
+class wsTool {
+	constructor(params = {}) {
+		let that = this;
+
+		this.onKey = {};
+		this.wss = new WebSocket.Server({ port: 12122, ...params });
+
+		// 有客户端连接时		 
+		this.wss.on('connection', ws => {
+			this.ws = ws;
+			this.clients = this.wss.clients;
+			this.msg();
+			this.send('connection-success');
+		});
+	}
+	// 创建 'message' 监听
+	msg() {
+		this.ws.on('message', data => {
+	        this.onKey['message'] && this.onKey['message'](data);
+	    });
+	}
+	send(data) {
+        this.wss.clients.forEach(client => {
+	        if (client.readyState === WebSocket.OPEN) {
+	            client.send(data);
+	        }
+	    });
+	}
+	on(key, fn) {
+		this.onKey[key] = fn;
+	}
+	getWs() {
+		return this.ws;
+	}
+}
 
 export {
 	consoleInner, transcribe, createInterval, 
 	print, getPerformance, robotMouse, robotKeyBoard, robotScreen,
-	fsTool, cpTool, Translator, disableClickPropagation, enableClickPropagation
+	fsTool, cpTool, Translator, disableClickPropagation, enableClickPropagation,
+	sessionTool, cteateNotification, createWindow, wsTool
 };

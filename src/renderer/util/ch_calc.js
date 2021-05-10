@@ -39,4 +39,6 @@ class ch {
 	}
 }
 
+let Cch = new ch();
+
 export { ch }

@@ -5,7 +5,8 @@ const fs = require('fs');
 
 import {
 	consoleInner, transcribe, createInterval, getPerformance,
-	Translator, disableClickPropagation, enableClickPropagation
+	Translator, disableClickPropagation, enableClickPropagation,
+	createWindow
 } from '../util/index.js';
 import { personate } from '../personate/index.js';
 
@@ -203,6 +204,14 @@ function createShortcut(event = {}) {
 				hideOperateMiss();
 				enableClickPropagation();
 			}
+		}
+	);
+
+	// ctrl + alt + w  创建浏览器窗口
+	_createShortcut('CommandOrControl+alt+w',
+		(event.ctrlkey && event.altKey && keyCode === 87),
+		() => {
+			new createWindow();
 		}
 	);
 

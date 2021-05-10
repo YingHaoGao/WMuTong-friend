@@ -1,4 +1,4 @@
-const { app, BrowserWindow, screen, ipcMain, globalShortcut  } = require('electron');
+const { app, BrowserWindow, screen, ipcMain, globalShortcut, dialog, Notification  } = require('electron');
 const path = require('path');
 const cp = require("child_process");
 const fs = require('fs');
@@ -17,7 +17,10 @@ let win;
 app.main_params = {
 	robot: robot,
 	globalShortcut: globalShortcut,
-	ioHook: ioHook
+	ioHook: ioHook,
+	dialog: dialog,
+	Notification: Notification,
+	BrowserWindow: BrowserWindow
 };
 
 process.env.canvesWidth = 200;
@@ -45,6 +48,7 @@ function createWindow() {
 		frame: false,
 		transparent: true,
 		resizable: false,
+		skipTaskbar: false,
 		minimizable: false,
 		maximizable: false,
 		closable: false,
@@ -54,6 +58,7 @@ function createWindow() {
 		icon: 'icon/logo.ico',
 		// backgroundColor: '#2e2c29',
 	    webPreferences: {
+	      webviewTag: true,
 	      nodeIntegration: true,
 	      enableRemoteModule: true,
 	      nodeIntegrationInWorker: true,

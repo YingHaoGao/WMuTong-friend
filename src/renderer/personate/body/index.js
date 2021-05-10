@@ -1,4 +1,10 @@
-import { fsTool, consoleInner, Translator } from '../../util/index.js';
+const { remote, ipcRenderer } = require('electron');
+const { dialog } = remote.app.main_params;
+
+import {
+	fsTool, consoleInner, Translator, sessionTool, cteateNotification,
+	cpTool, wsTool
+} from '../../util/index.js';
 
 const body = function(){
 	
@@ -22,5 +28,49 @@ const nFsTool = new fsTool();
 // 		console.log(item)
 // 	})
 // })
+// new cteateNotification({ title: "通知", body: __dirname })
+
+let nWs = new wsTool();
+nWs.on('message', msg => {
+	if(typeof msg == 'string') {
+		msg = JSON.parse(msg);
+
+		if(msg.id == 'source-src' && msg.src) {
+			let sourceSrc = msg.src;
+			let title = msg.title;
+			let m3u8Str = sourceSrc.match(/.+\.m3u8/);
+
+			if(m3u8Str) {
+				m3u8Str = m3u8Str[0];
+				let noti = new Notification("检测到 m3u8 资源",
+					{ body: `发现名为 ${title} 的m3u8资源。点击通知开始下载` });
+				// let noti = new cteateNotification({ title: "检测到 m3u8 资源", body: `发现名为 ${title} 的m3u8资源。点击通知开始下载` });
+				noti.onclick = () => {
+					let nCpTool = new cpTool();
+					nCpTool.stdoutData = res => {
+						console.log(res);
+						consoleInner({'stdout': res}, 10)
+					}
+					nCpTool.stderrData = err => {
+						consoleInner({ 'stderr': err }, 11)
+					}
+					nCpTool.cmd(`ffmpeg -i ${msg.src} -c copy -bsf:a aac_adtstoasc C:\/Users\/po\/Downloads\/${msg.id}.mp4`);
+				}
+			}
+		}
+	}
+})
+
+let sendHeaderCall = details => {
+	nWs.send('get-source');
+}
+let completedCall = details => {
+	console.log(details)
+}
+const nSessionTool = new sessionTool({
+	urls: ['*://*/*'],
+	// urls: ['http://91porn.com/', 'https://www.baidu.com/'],
+	sendHeaderCall, completedCall
+});
 
 export { body }
