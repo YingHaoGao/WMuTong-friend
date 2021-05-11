@@ -57,7 +57,7 @@ nWs.on('message', msg => {
 						console.log(code);
 						consoleInner({ 'execClose': code })
 					}
-					nCpTool.cmd(`ffmpeg -i ${msg.src} -c copy -bsf:a aac_adtstoasc ${__dirname}/downloack/${msg.title}.mp4`);
+					nCpTool.cmd(`ffmpeg -i ${msg.src} -c copy -bsf:a aac_adtstoasc ${__dirname}/download/${msg.title}.mp4`);
 				}
 			}
 		}
