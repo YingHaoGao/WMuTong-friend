@@ -46,6 +46,7 @@ function createWindow() {
 		y: y,
 		center: false,
 		frame: false,
+		kiosk: true,
 		transparent: true,
 		resizable: false,
 		skipTaskbar: false,
