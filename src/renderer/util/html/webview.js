@@ -1,9 +1,20 @@
+const xhr_proxy = require('../xhr_proxy.js');
+
 var interval;
 var awaitSourceId = {};
 var getStr = (str = '', start, end) => {
     let res = str.match(new RegExp(`${start}(.*?)${end}`))
     return res ? res[1] : null
 };
+
+let b = function(xhr) {
+	let a = xhr.responseURL.match(/.+\.m3u8/);
+	
+	if(a) {
+		awaitSourceId.a = a[0]
+	}
+}
+xhr_proxy.addHandler(b);
 
 window.onload=function(){
 	const script=document.createElement("script");
@@ -35,6 +46,18 @@ window.onload=function(){
 
 		var busClient = new WebSocket('ws://localhost:12122/');
 		var getSource = () => {
+			let src = $('source').attr('src');
+			let id = '';
+
+			if(src && src != '') {
+				src = src.match(/.+\.m3u8/);
+				if(!src) return;
+
+				id = getStr(src[0], '/m3u8/', '/');
+				if(awaitSourceId[id]) return;
+				awaitSourceId[id] = src[0];
+			}
+
 			Object.keys(awaitSourceId).map(k => {
 				if(awaitSourceId[k] != 'false') {
 					let src = awaitSourceId[k];
@@ -79,17 +102,18 @@ window.onload=function(){
 		}, 1000);
 
 		$(window).off().on('DOMNodeInserted', () => {
-			let src = $('source').attr('src');
-			let id = '';
+			getSource();
+			// let src = $('source').attr('src');
+			// let id = '';
 
-			if(src && src != '') {
-				src = src.match(/.+\.m3u8/);
-				if(!src) return;
+			// if(src && src != '') {
+			// 	src = src.match(/.+\.m3u8/);
+			// 	if(!src) return;
 
-				id = getStr(src[0], '/m3u8/', '/');
-				if(awaitSourceId[id]) return;
-				awaitSourceId[id] = src[0];
-			}
+			// 	id = getStr(src[0], '/m3u8/', '/');
+			// 	if(awaitSourceId[id]) return;
+			// 	awaitSourceId[id] = src[0];
+			// }
 		})
 	}, 1000)
 }
