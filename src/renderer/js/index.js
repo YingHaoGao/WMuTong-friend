@@ -6,7 +6,7 @@ const fs = require('fs');
 import {
 	consoleInner, transcribe, createInterval, getPerformance,
 	Translator, disableClickPropagation, enableClickPropagation,
-	createWindow
+	createWindow, wsTool, sessionTool, fsTool, cpTool
 } from '../util/index.js';
 import { personate } from '../personate/index.js';
 
@@ -19,6 +19,7 @@ var elOperateMiss;
 var mousedown, mouseselect;
 var nTranscribe;
 var mouseLocat = {};
+var tsObj = {};
 
 function init() {
 	elConsole = document.getElementById('console');
@@ -294,12 +295,79 @@ function hideOperateMiss() {
 };
 
 
+/**
+ * ts 资源下载
+ * */
+tsObj = {
+	init() {
+		let nWs = new wsTool();
+		nWs.on('message', msg => {
+			if(typeof msg == 'string') {
+				msg = JSON.parse(msg);
+
+				// 收到下载 m3u8 的通知
+				if(msg.id == 'source-src' && msg.src) {
+					tsObj.startDownload(msg);
+				}
+				else if(msg.id == 'source-str' && msg.str) {
+					var nFsTool = new fsTool();
+					nFsTool.write(`${__dirname}/${msg.title}.m3u8`, msg.str);
+					msg.src = `${__dirname}/${msg.title}.m3u8`;
+					tsObj.startDownload(msg);
+				}
+				else if(msg.id.indexOf('webview') > -1) {
+					nWs.send(msg.id);
+				}
+			}
+		});
+
+		let sendHeaderCall = details => {
+			nWs.send('get-source');
+		}
+		let completedCall = details => {
+			console.log(details)
+		}
+		const nSessionTool = new sessionTool({
+			urls: ['*://*/*'],
+			// urls: ['http://91porn.com/', 'https://www.baidu.com/'],
+			sendHeaderCall, completedCall
+		});
+	},
+	startDownload(msg) {
+		let sourceSrc = msg.src;
+		let title = msg.title;
+		let m3u8Str = sourceSrc.match(/.+\.m3u8/);
+
+		if(m3u8Str) {
+			m3u8Str = m3u8Str[0];
+			let noti = new Notification("检测到m3u8资源",
+				{ body: `发现名为${title}的m3u8资源。点击通知开始下载` });
+			noti.onclick = () => {
+				let nCpTool = new cpTool();
+				nCpTool.stdoutData = res => {
+					console.log(res);
+					consoleInner({'stdout': res}, 10)
+				}
+				nCpTool.stderrData = err => {
+					consoleInner({ 'stderr': err })
+				}
+				nCpTool.execClose = code => {
+					console.log(code);
+					consoleInner({ 'execClose': code })
+				}
+				nCpTool.cmd(`ffmpeg -protocol_whitelist "file,http,https,rtp,udp,tcp,tls" -i ${msg.src} -c copy -bsf:a aac_adtstoasc ${__dirname}/download/${msg.title}.mp4`);
+			}
+		}
+	}
+};
+
 ipcRenderer.on('browserWindowCreated', (event, ans) => {
 	interval = new createInterval();
 	// interval.mount({ id: 'getPerformance', repetition: Infinity, fn: getPerformance });
 	nTranscribe = new transcribe({interval});
 
     init();
+    tsObj.init();
 });
 
 ipcRenderer.on('electron_quit', (event, ans) => {

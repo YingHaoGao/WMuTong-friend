@@ -1,27 +1,36 @@
 const xhr_proxy = require('../xhr_proxy.js');
 
 var interval;
+// 访问的页面 title
+var pageTitle;
+// 等待下载的 m3u8 资源集合
 var awaitSourceId = {};
 var getStr = (str = '', start, end) => {
     let res = str.match(new RegExp(`${start}(.*?)${end}`))
     return res ? res[1] : null
 };
 
-let b = function(xhr) {
-	let a = xhr.responseURL.match(/.+\.m3u8/);
+// 捕获请求内的 m3u8 资源
+var busClient = new WebSocket('ws://localhost:12122/');
+let get_m3u8_responseText = function(xhr) {
+	let isM3u8 = xhr.responseURL.match(/.+\.m3u8/);
 	
-	if(a) {
-		awaitSourceId.a = a[0]
+	if(isM3u8) {
+		let awaitLeng = Object.keys(awaitSourceId).length;
+
+		busClient.send(JSON.stringify({
+			id: 'source-str', str: xhr.responseText, title: pageTitle, key: awaitLeng
+		}));
 	}
 }
-xhr_proxy.addHandler(b);
+xhr_proxy.addHandler(get_m3u8_responseText);
 
 window.onload=function(){
 	const script=document.createElement("script");
 	script.type="text/javascript"; 
 	script.src="https://code.jquery.com/jquery-1.12.4.min.js"; 
 	document.getElementsByTagName('head')[0].appendChild(script);
-
+	
 	setTimeout(() => {
 		$('html').append('<span id="webview-img-show"><span>')
 		var imgHideShow = function(is) {
@@ -43,6 +52,8 @@ window.onload=function(){
 		const WebSocket = require('ws');
 
 		let sourceSrc;
+
+		pageTitle = $('html title').text().trim().replace(/[ ]|[\r\n]|-/g,"");
 
 		var busClient = new WebSocket('ws://localhost:12122/');
 		var getSource = () => {

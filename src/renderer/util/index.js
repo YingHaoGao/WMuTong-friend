@@ -273,6 +273,13 @@ class fsTool {
 		return new Promise((resolve, reject) => {
 			let ws = fs.createWriteStream(path);
 
+			fs.exists(path, (exists) => {
+				console.log('exists -----', exists, path);
+				if(!exists) {
+					fs.mkdirSync(path);
+				}
+			})
+
 			ws.write(str, err => {
 				if(err) throw err;
 			});
@@ -282,6 +289,7 @@ class fsTool {
 				resolve();
 			});
 			ws.on('error', err => {
+				console.error(err)
 				reject(err.stack);
 			});
 		});
