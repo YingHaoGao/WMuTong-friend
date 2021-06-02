@@ -20,6 +20,8 @@ var mousedown, mouseselect;
 var nTranscribe;
 var mouseLocat = {};
 var tsObj = {};
+// 是否启动控制模式
+var hasControl = false;
 
 function init() {
 	elConsole = document.getElementById('console');
@@ -187,9 +189,6 @@ function init() {
  * */
 // 注册快捷键
 function createShortcut(event = {}) {
-	// 是否启动控制模式
-	var hasControl = false;
-
 	// ctrl + alt + m  进入控制模式
 	_createShortcut('CommandOrControl+alt+m',
 		(event.ctrlKey && event.altKey && event.keycode === 50),
