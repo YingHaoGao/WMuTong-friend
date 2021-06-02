@@ -106,7 +106,7 @@ function init() {
 	  operationGradeTypeParams = { type: event.type, keycode: event.keycode };
 	  addGradeFn('keydownObj');
 
-	  var mt = globalShortcut.isRegistered('CommandOrControl+m+t');
+	  // var mt = globalShortcut.isRegistered('CommandOrControl+m+t');
 	  createShortcut(event);
 	});
 	// 键盘抬起 
@@ -192,7 +192,7 @@ function createShortcut(event = {}) {
 
 	// ctrl + alt + m  进入控制模式
 	_createShortcut('CommandOrControl+alt+m',
-		(event.ctrlkey && event.altKey && keyCode === 77),
+		(event.ctrlKey && event.altKey && event.keycode === 50),
 		() => {
 			hasControl = !hasControl;
 
@@ -210,7 +210,7 @@ function createShortcut(event = {}) {
 
 	// ctrl + alt + w  创建浏览器窗口
 	_createShortcut('CommandOrControl+alt+w',
-		(event.ctrlkey && event.altKey && keyCode === 87),
+		(event.ctrlKey && event.altKey && event.keycode === 17),
 		() => {
 			new createWindow();
 		}
@@ -218,7 +218,7 @@ function createShortcut(event = {}) {
 
 	// ctrl + alt + a  截屏到粘贴板
 	_createShortcut('CommandOrControl+alt+a',
-		(event.ctrlkey && event.altKey && keyCode === 65),
+		(event.ctrlKey && event.altKey && event.keycode === 30),
 		() => {
 			print();
 		}
@@ -226,7 +226,7 @@ function createShortcut(event = {}) {
 
 	// ctrl + alt + c  切换console显示、隐藏
 	_createShortcut('CommandOrControl+alt+c',
-		(event.ctrlkey && event.altKey && keyCode === 67),
+		(event.ctrlKey && event.altKey && event.keycode === 46),
 		() => {
 			if(elConsole.style.display == 'none') {
 				showConsoleInner();
@@ -238,7 +238,7 @@ function createShortcut(event = {}) {
 
 	// ctrl + alt + p  录制屏幕 开始/结束
 	_createShortcut('CommandOrControl+alt+p',
-		(event.ctrlkey && event.altKey && keyCode === 80),
+		(event.ctrlKey && event.altKey && event.keycode === 25),
 		() => {
 			if(nTranscribe.getIs()) {
 				nTranscribe.stopRecord();
@@ -250,19 +250,20 @@ function createShortcut(event = {}) {
 
 	// ctrl + alt + t  翻译
 	_createShortcut('CommandOrControl+alt+t',
-		(event.ctrlkey && event.altKey && keyCode === 84),
+		(event.ctrlKey && event.altKey && event.keycode === 20),
 		() => {
 			nTranscribe.createDom(mouseLocat.x, mouseLocat.y);
 		}
 	);
 };
 function _createShortcut(key, eveIf, fn) {
-	if(!globalShortcut.isRegistered(key)) {
-		globalShortcut.register(key, fn);
-	} else {
-		try {
-			eveIf && fn();
-		} catch(err) {}
+	if(eveIf) {
+		fn();
+	}
+	else {
+		if(!globalShortcut.isRegistered(key)) {
+			globalShortcut.register(key, fn);
+		}
 	}
 };
 // 显示consoleInner
@@ -311,8 +312,8 @@ tsObj = {
 				}
 				else if(msg.id == 'source-str' && msg.str) {
 					var nFsTool = new fsTool();
-					nFsTool.write(`${__dirname}/${msg.title}.m3u8`, msg.str);
-					msg.src = `${__dirname}/${msg.title}.m3u8`;
+					nFsTool.write(`${__dirname}/download/${msg.title}.m3u8`, msg.str);
+					msg.src = `${__dirname}/download/${msg.title}.m3u8`;
 					tsObj.startDownload(msg);
 				}
 				else if(msg.id.indexOf('webview') > -1) {
@@ -337,6 +338,7 @@ tsObj = {
 		let sourceSrc = msg.src;
 		let title = msg.title;
 		let m3u8Str = sourceSrc.match(/.+\.m3u8/);
+		var nFsTool = new fsTool();
 
 		if(m3u8Str) {
 			m3u8Str = m3u8Str[0];
@@ -345,15 +347,19 @@ tsObj = {
 			noti.onclick = () => {
 				let nCpTool = new cpTool();
 				nCpTool.stdoutData = res => {
-					console.log(res);
-					consoleInner({'stdout': res}, 10)
+					consoleInner({'stdout': res}, 10);
 				}
 				nCpTool.stderrData = err => {
-					consoleInner({ 'stderr': err })
+					// consoleInner({ 'stderr': err });
+					consoleInner({
+						'视频时长': err.match(/time=[0-9]{2}:[0-9]{2}:[0-9]{2}/)[0] || '',
+						'视频大小': err.match(/Lsize=[0-9]+kb/)[0] || '',
+						'下载速度': err.match(/bitrate= ([0-9]|\.[0-9])+kbits\/s/)[0] || ''
+					}, 11);
 				}
 				nCpTool.execClose = code => {
-					console.log(code);
-					consoleInner({ 'execClose': code })
+					consoleInner({ 'execClose': code, '下载结果：': code == 0 ? '成功' : '失败' }, 9);
+					nFsTool.delete(msg.src);
 				}
 				nCpTool.cmd(`ffmpeg -protocol_whitelist "file,http,https,rtp,udp,tcp,tls" -i ${msg.src} -c copy -bsf:a aac_adtstoasc ${__dirname}/download/${msg.title}.mp4`);
 			}

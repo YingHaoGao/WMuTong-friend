@@ -14,12 +14,13 @@ var getStr = (str = '', start, end) => {
 var busClient = new WebSocket('ws://localhost:12122/');
 let get_m3u8_responseText = function(xhr) {
 	let isM3u8 = xhr.responseURL.match(/.+\.m3u8/);
+	pageTitle = $('html title').text().trim().replace(/[ ]|[\r\n]|-/g,"");
 	
 	if(isM3u8) {
 		let awaitLeng = Object.keys(awaitSourceId).length;
 
 		busClient.send(JSON.stringify({
-			id: 'source-str', str: xhr.responseText, title: pageTitle, key: awaitLeng
+			id: 'source-str', str: xhr.responseText, title: pageTitle || awaitLeng, key: awaitLeng
 		}));
 	}
 }
@@ -114,17 +115,6 @@ window.onload=function(){
 
 		$(window).off().on('DOMNodeInserted', () => {
 			getSource();
-			// let src = $('source').attr('src');
-			// let id = '';
-
-			// if(src && src != '') {
-			// 	src = src.match(/.+\.m3u8/);
-			// 	if(!src) return;
-
-			// 	id = getStr(src[0], '/m3u8/', '/');
-			// 	if(awaitSourceId[id]) return;
-			// 	awaitSourceId[id] = src[0];
-			// }
 		})
 	}, 1000)
 }

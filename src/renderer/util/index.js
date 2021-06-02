@@ -294,6 +294,10 @@ class fsTool {
 			});
 		});
 	}
+	// 删除
+	delete(path) {
+		fs.unlinkSync(path);
+	}
 	// 压缩
 	gzip(pathIn, pathOut, pswd = 'mutong') {
 		let password = new Buffer(pswd);
