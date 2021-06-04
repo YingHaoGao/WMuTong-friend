@@ -311,9 +311,13 @@ tsObj = {
 				}
 				else if(msg.id == 'source-str' && msg.str) {
 					var nFsTool = new fsTool();
-					nFsTool.write(`${__dirname}/download/${msg.title}.m3u8`, msg.str);
-					msg.src = `${__dirname}/download/${msg.title}.m3u8`;
-					tsObj.startDownload(msg);
+					var path = `${__dirname}/download`;
+
+					nFsTool.mkdir(path, () => {
+						nFsTool.write(`${path}/${msg.title}.m3u8`, msg.str);
+						msg.src = `${path}/${msg.title}.m3u8`;
+						tsObj.startDownload(msg);
+					});
 				}
 				else if(msg.id.indexOf('webview') > -1) {
 					nWs.send(msg.id);
@@ -344,28 +348,30 @@ tsObj = {
 			let noti = new Notification("检测到m3u8资源",
 				{ body: `发现名为${title}的m3u8资源。点击通知开始下载` });
 			noti.onclick = () => {
-				let nCpTool = new cpTool();
-				nCpTool.stdoutData = res => {
-					consoleInner({'stdout': res}, 10);
-				}
-				nCpTool.stderrData = err => {
-					let time = err.match(/time=[0-9]{2}:[0-9]{2}:[0-9]{2}/);
-					let size = err.match(/Lsize=[0-9]+kb/);
-					let speed = err.match(/bitrate= ([0-9]|\.[0-9])+kbits\/s/);
+				let nCpTool = new cpTool({
+					stdout_fn(res) {
+						consoleInner({'stdout': res}, 10);
+					},
+					stderr_fn(err) {
+						consoleInner({'下载ts': err}, 11);
+						// let time = err.match(/time(\:|=)[]{0,1}[0-9]{2}:[0-9]{2}:[0-9]{2}/);
+						// let size = err.match(/Lsize(\:|=)[]{0,1}[0-9]+kb/);
+						// let speed = err.match(/bitrate(\:|=)[]{0,1}([0-9]|\.[0-9])+kbits\/s/);
 
-					consoleInner({
-						'视频时长': time ? time[0] : '',
-						'视频大小': size ? size[0] : '',
-						'下载速度': speed ? speed[0] : ''
-					}, 11);
-				}
-				nCpTool.execClose = code => {
-					consoleInner({ 'execClose': code, '下载结果：': code == 0 ? '成功' : '失败' }, 9);
-					nFsTool.delete(msg.src);
-				}
-				nCpTool.cmd(`ffmpeg -allowed_extensions ALL -protocol_whitelist "file,http,https,rtp,udp,tcp,tls" -i ${msg.src} -c copy -bsf:a aac_adtstoasc ${__dirname}/download/${msg.title}.mp4`);
-				// nCpTool.cmd(`ffmpeg -version`);
-				// nCpTool.cmd(`set path=%path%;${__dirname}/build/ffmpeg/bin`);
+						// consoleInner({
+						// 	'视频时长': time ? time[0] : '',
+						// 	'视频大小': size ? size[0] : '',
+						// 	'下载速度': speed ? speed[0] : ''
+						// }, 11);
+					},
+					close_fn(code) {
+						consoleInner({ 'execClose': code, '下载结果：': code == 0 ? '成功' : '失败' }, 9);
+						nFsTool.delete(msg.src);
+					}
+				});
+
+				let path = `${__dirname}/download`;
+				nCpTool.cmd(`ffmpeg -allowed_extensions ALL -protocol_whitelist "file,http,https,rtp,udp,tcp,tls" -i ${msg.src} -c copy -bsf:a aac_adtstoasc ${path}/${msg.title}.mp4`);
 			}
 		}
 	}

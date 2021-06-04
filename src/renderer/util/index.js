@@ -293,6 +293,20 @@ class fsTool {
 			});
 		});
 	}
+	// 创建文件夹
+	mkdir(path, fn) {
+	    let exists = fs.existsSync(path);
+
+	    if(exists) {
+	    	fn && fn();
+	    	return;
+	    }
+	    else {
+	    	fs.mkdir(path, err => {
+	    		fn && fn();
+	    	});
+	    }
+	}
 	// 删除
 	delete(path) {
 		fs.unlinkSync(path);
@@ -372,41 +386,47 @@ class cpTool {
 		// 正常可执行程序输出
 		this.exec.stdout.on('data', res => {
 			res = iconv.decode(Buffer.concat([res]), 'GBK');
+			console.log('stdout ------------', res);
 			that.stdout_Data(res);
 		});
 		// 错误可执行程序输出
 		this.exec.stderr.on('data', err => {
 			err = iconv.decode(Buffer.concat([err]), 'GBK');
+			console.log('stderr ------------', err);
 			that.stderr_Data(err);
 		});
 		// 退出后的输出
 		this.exec.on('close', code => {
+			console.log('close ------------', code);
 			that.exec_Close(code)
 		});
 	}
 	stdout_Data(res) {
 		console.log('stdoutData ------------', res);
-		this.stdout_fn && this.stdout_fn();
+		this.stdout_fn && this.stdout_fn(res);
 	}
 	stderr_Data(err) {
 		console.log('stderrData --> end -------------', err);
 		let that = this;
-		let module_name = err.match(/\'([a-z]|[A-Z])+\'/)[0];
-
-		module_name = module_name.replace(/\'|\"/g, '');
 
 		if(err.indexOf('不是内部或外部命令') > -1) {
+			let module_name = err.match(/\'([a-z]|[A-Z])+\'/);
+			if(!!module_name) module_name = module_name[0];
+
+			module_name = module_name.replace(/\'|\"/g, '');
+
 			switch(module_name) {
 				case 'ffmpeg':
 					
 					break;
 			}
 		}
-		this.stderr_fn && this.stderr_fn();
+
+		this.stderr_fn && this.stderr_fn(err);
 	}
 	exec_Close(code) {
 		console.log('execClose -------------', code, this.tag, this.close_fn);
-		this.close_fn && this.close_fn();
+		this.close_fn && this.close_fn(code);
 	}
 };
 
