@@ -274,7 +274,6 @@ class fsTool {
 			let ws = fs.createWriteStream(path);
 
 			fs.exists(path, (exists) => {
-				console.log('exists -----', exists, path);
 				if(!exists) {
 					fs.mkdirSync(path);
 				}
@@ -347,31 +346,68 @@ class fsTool {
  * cp 
  * */
 class cpTool {
-	constructor(params) {
-		return this.exec;
+	constructor(params = {}) {
+		this.exec = null;
+		this.params = params;
+		this.stdout_fn = params.stdout_fn;
+		this.stderr_fn = params.stderr_fn;
+		this.close_fn = params.close_fn;
+		this.env = {
+			'PATH': `${process.env.PATH || process.env.Path};${__dirname}/build/ffmpeg/bin`
+		};
 	}
-	cmd(s) {
+
+	cmd(s, not_record) {
+		let that = this;
+		if(!not_record) {
+			this.exec_s = s;
+		}
+
 		if(typeof s === 'string') {
-			this.exec = cp.exec(s, { encoding:'GBK' });
+			this.exec = cp.exec(s, { encoding:'GBK', env: that.env });
 		} else {
-			this.exec = cp.exec(s.cwd, { encoding:'GBK', ...s });
+			this.exec = cp.exec(s.cwd, { encoding:'GBK', env: that.env, ...s });
 		}
 
 		// 正常可执行程序输出
 		this.exec.stdout.on('data', res => {
-			this.stdoutData(res);
+			res = iconv.decode(Buffer.concat([res]), 'GBK');
+			that.stdout_Data(res);
 		});
 		// 错误可执行程序输出
 		this.exec.stderr.on('data', err => {
 			err = iconv.decode(Buffer.concat([err]), 'GBK');
-			this.stderrData(err);
+			that.stderr_Data(err);
 		});
 		// 退出后的输出
-		this.exec.on('close', this.execClose);
+		this.exec.on('close', code => {
+			that.exec_Close(code)
+		});
 	}
-	stdoutData(res) {}
-	stderrData(err) {}
-	execClose(code) {}
+	stdout_Data(res) {
+		console.log('stdoutData ------------', res);
+		this.stdout_fn && this.stdout_fn();
+	}
+	stderr_Data(err) {
+		console.log('stderrData --> end -------------', err);
+		let that = this;
+		let module_name = err.match(/\'([a-z]|[A-Z])+\'/)[0];
+
+		module_name = module_name.replace(/\'|\"/g, '');
+
+		if(err.indexOf('不是内部或外部命令') > -1) {
+			switch(module_name) {
+				case 'ffmpeg':
+					
+					break;
+			}
+		}
+		this.stderr_fn && this.stderr_fn();
+	}
+	exec_Close(code) {
+		console.log('execClose -------------', code, this.tag, this.close_fn);
+		this.close_fn && this.close_fn();
+	}
 };
 
 /**

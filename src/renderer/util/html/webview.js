@@ -20,7 +20,8 @@ let get_m3u8_responseText = function(xhr) {
 		let awaitLeng = Object.keys(awaitSourceId).length;
 
 		busClient.send(JSON.stringify({
-			id: 'source-str', str: xhr.responseText, title: pageTitle || awaitLeng, key: awaitLeng
+			id: 'source-str', str: xhr.responseText, title: pageTitle || awaitLeng, key: awaitLeng,
+			// header_url: xhr.responseURL.match
 		}));
 	}
 }

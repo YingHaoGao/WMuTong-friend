@@ -349,18 +349,23 @@ tsObj = {
 					consoleInner({'stdout': res}, 10);
 				}
 				nCpTool.stderrData = err => {
-					// consoleInner({ 'stderr': err });
+					let time = err.match(/time=[0-9]{2}:[0-9]{2}:[0-9]{2}/);
+					let size = err.match(/Lsize=[0-9]+kb/);
+					let speed = err.match(/bitrate= ([0-9]|\.[0-9])+kbits\/s/);
+
 					consoleInner({
-						'视频时长': err.match(/time=[0-9]{2}:[0-9]{2}:[0-9]{2}/)[0] || '',
-						'视频大小': err.match(/Lsize=[0-9]+kb/)[0] || '',
-						'下载速度': err.match(/bitrate= ([0-9]|\.[0-9])+kbits\/s/)[0] || ''
+						'视频时长': time ? time[0] : '',
+						'视频大小': size ? size[0] : '',
+						'下载速度': speed ? speed[0] : ''
 					}, 11);
 				}
 				nCpTool.execClose = code => {
 					consoleInner({ 'execClose': code, '下载结果：': code == 0 ? '成功' : '失败' }, 9);
 					nFsTool.delete(msg.src);
 				}
-				nCpTool.cmd(`ffmpeg -protocol_whitelist "file,http,https,rtp,udp,tcp,tls" -i ${msg.src} -c copy -bsf:a aac_adtstoasc ${__dirname}/download/${msg.title}.mp4`);
+				nCpTool.cmd(`ffmpeg -allowed_extensions ALL -protocol_whitelist "file,http,https,rtp,udp,tcp,tls" -i ${msg.src} -c copy -bsf:a aac_adtstoasc ${__dirname}/download/${msg.title}.mp4`);
+				// nCpTool.cmd(`ffmpeg -version`);
+				// nCpTool.cmd(`set path=%path%;${__dirname}/build/ffmpeg/bin`);
 			}
 		}
 	}
