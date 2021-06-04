@@ -259,11 +259,11 @@ function _createShortcut(key, eveIf, fn) {
 	if(eveIf) {
 		fn();
 	}
-	else {
-		if(!globalShortcut.isRegistered(key)) {
-			globalShortcut.register(key, fn);
-		}
-	}
+	// else {
+	// 	if(!globalShortcut.isRegistered(key)) {
+	// 		globalShortcut.register(key, fn);
+	// 	}
+	// }
 };
 // 显示consoleInner
 function showConsoleInner() {
