@@ -4,11 +4,11 @@
 			特点：A、经常由名词、代词、名词性短语充当。B、一般表示谓语所说的是“谁”或 “什么”。
 		谓语(predicate)(_):用来说明陈述主语。能回答主语“怎么样”或“是什么”等问题，一般放在主语的后面;
 			特点：A、经常由动词、形容词充当。B、一般表示主语“怎么样”或“是什么”。
-		宾语(predicate)(~)：表示谓语动词的涉及对象的语言单位。宾语 往往表示动作支配的对象，并且总是处在动词的后头。可由名词、代词、数词、名词化的形容词、不定式、动名词、宾语从句等来担任；
+		宾语(accusative)(~)：表示谓语动词的涉及对象的语言单位。宾语 往往表示动作支配的对象，并且总是处在动词的后头。可由名词、代词、数词、名词化的形容词、不定式、动名词、宾语从句等来担任；
 			特点：A、经常由名词、代词、名词性短语充当。B、一般表示谓语“怎么样”或“是什么”。
 		定语(attribute)(())：主要由形容词构成;
 			特点：
-		状语(adverbial_modifier)([])：主要由副词构成；
+		状语(adverbial)([])：主要由副词构成；
 			特点：
 		补语(accusative)(<>)：主要由谓词性词语（谓词包括动词和形容词）、数量短语和介词短语充当；
 			特点：
@@ -35,10 +35,59 @@
 
 class ch {
 	constructor() {
+		this.data = () => {};
+	}
+	// 绑定
+	on(k, f) {
+		this[k] = f;
+	}
+	// 输入语句
+	importStr(str) {
+		setTimeout(() => {
+			this.data && this.data('a');
+		}, 2000)
+	}
+	// 提取主语
+	extract_subject(str) {
+
+	}
+	// 提取谓语
+	extract_predicate(str) {
+
+	}
+	// 提取宾语
+	extract_accusative(str) {
+
+	}
+	// 提取定语
+	extract_attribute(str) {
+
+	}
+	// 提取状语
+	extract_adverbial(str) {
+
+	}
+	// 提取补语
+	extract_accusative(str) {
 
 	}
 }
 
 let Cch = new ch();
+Cch.importStr('我今天心情不错');
+Cch.on('data', res => {
+	console.log(res)
+})
 
-export { ch }
+// export { ch }
+
+
+const router = {
+	"唯一标识"： {
+		name: "描述",
+		path: "路由地址"
+	},
+	...
+}
+
+export router;
