@@ -319,6 +319,13 @@ tsObj = {
 						tsObj.startDownload(msg);
 					});
 				}
+				else if(msg.id == 'source-url' && msg.url) {
+					var nFsTool = new fsTool();
+					var path = `${__dirname}/download`;
+
+					msg.src = msg.url;
+					tsObj.startDownload(msg);
+				}
 				else if(msg.id.indexOf('webview') > -1) {
 					nWs.send(msg.id);
 				}
@@ -354,6 +361,7 @@ tsObj = {
 					},
 					stderr_fn(err) {
 						consoleInner({'下载ts': err}, 11);
+						consoleInner({ '下载结果：': "下载中" }, 9);
 						// let time = err.match(/time(\:|=)[]{0,1}[0-9]{2}:[0-9]{2}:[0-9]{2}/);
 						// let size = err.match(/Lsize(\:|=)[]{0,1}[0-9]+kb/);
 						// let speed = err.match(/bitrate(\:|=)[]{0,1}([0-9]|\.[0-9])+kbits\/s/);
@@ -366,12 +374,16 @@ tsObj = {
 					},
 					close_fn(code) {
 						consoleInner({ 'execClose': code, '下载结果：': code == 0 ? '成功' : '失败' }, 9);
-						nFsTool.delete(msg.src);
+						try {
+							nFsTool.delete(msg.src);
+						} catch(e) {}
 					}
 				});
 
 				let path = `${__dirname}/download`;
-				nCpTool.cmd(`ffmpeg -allowed_extensions ALL -protocol_whitelist "file,http,https,rtp,udp,tcp,tls" -i ${msg.src} -c copy -bsf:a aac_adtstoasc ${path}/${msg.title}.mp4`);
+				let cmd = `ffmpeg -allowed_extensions ALL -protocol_whitelist "file,http,https,rtp,udp,tcp,tls,crypto" -i ${msg.src} -c copy -bsf:a aac_adtstoasc ${path}/${msg.title}.mp4`;
+				consoleInner(cmd)
+				nCpTool.cmd(cmd);
 			}
 		}
 	}

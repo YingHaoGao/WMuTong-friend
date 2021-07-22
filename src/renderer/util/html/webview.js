@@ -13,16 +13,35 @@ var getStr = (str = '', start, end) => {
 // 捕获请求内的 m3u8 资源
 var busClient = new WebSocket('ws://localhost:12122/');
 let get_m3u8_responseText = function(xhr) {
+	console.log(xhr)
 	let isM3u8 = xhr.responseURL.match(/.+\.m3u8/);
-	pageTitle = $('html title').text().trim().replace(/[ ]|[\r\n]|-/g,"");
+
+	if($('html title')){
+		pageTitle = $('html title').text();
+	}
+	else if(document.getElementById("thread_subject")) {
+		pageTitle = document.getElementById("thread_subject").innerHTML;
+	}
+	else {
+		pageTitle = new Date().getTime() + "";
+	}
+	pageTitle = pageTitle.trim().replace(/[ ]|[\r\n]|-/g,"");
 	
 	if(isM3u8) {
 		let awaitLeng = Object.keys(awaitSourceId).length;
 
-		busClient.send(JSON.stringify({
-			id: 'source-str', str: xhr.responseText, title: pageTitle || awaitLeng, key: awaitLeng,
-			// header_url: xhr.responseURL.match
-		}));
+		if(xhr.responseText.match('URI="key.key"')) {
+			busClient.send(JSON.stringify({
+				id: 'source-url', url: isM3u8[0], title: pageTitle || awaitLeng, key: awaitLeng,
+				// header_url: xhr.responseURL.match
+			}));
+		}
+		else {
+			busClient.send(JSON.stringify({
+				id: 'source-str', str: xhr.responseText, title: pageTitle || awaitLeng, key: awaitLeng,
+				// header_url: xhr.responseURL.match
+			}));
+		}
 	}
 }
 xhr_proxy.addHandler(get_m3u8_responseText);
