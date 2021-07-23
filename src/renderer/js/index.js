@@ -390,7 +390,7 @@ tsObj = {
 
 				let path = `${__dirname}/download`;
 				let cmd = `ffmpeg -allowed_extensions ALL -protocol_whitelist "file,http,https,rtp,udp,tcp,tls,crypto" -i ${msg.src} -c copy -bsf:a aac_adtstoasc ${path}/${msg.title}.mp4`;
-				consoleInner(cmd)
+				consoleInner(cmd, 8)
 				nCpTool.cmd(cmd);
 			}
 		}
