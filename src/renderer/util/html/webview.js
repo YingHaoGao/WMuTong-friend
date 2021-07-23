@@ -10,6 +10,19 @@ var getStr = (str = '', start, end) => {
     return res ? res[1] : null
 };
 
+/**
+ * 将中文符号转换成英文符号
+ */ 
+function chineseChar2englishChar(chineseChar){
+    // 将单引号‘’都转换成'，将双引号“”都转换成"
+    var str = chineseChar.replace(/\’|\‘/g,"'").replace(/\“|\”/g,"\"");
+    // 将中括号【】转换成[]，将大括号｛｝转换成{}
+    str = str.replace(/\【/g,"[").replace(/\】/g,"]").replace(/\｛/g,"{").replace(/\｝/g,"}");
+    // 将逗号，转换成,，将：转换成:
+    str = str.replace(/，/g,",").replace(/：/g,":");
+    return str;
+};
+
 // 捕获请求内的 m3u8 资源
 var busClient = new WebSocket('ws://localhost:12122/');
 let get_m3u8_responseText = function(xhr) {
@@ -24,7 +37,8 @@ let get_m3u8_responseText = function(xhr) {
 	else {
 		pageTitle = new Date().getTime() + "";
 	}
-	pageTitle = pageTitle.trim().replace(/[ ]|[\r\n]|-/g,"");
+	pageTitle = chineseChar2englishChar(pageTitle);
+	pageTitle = pageTitle.trim().replace(/[ ]|[\r\n]|-|:|\*|\?|"|\/|\\|\<|\>/g,"");
 	
 	if(isM3u8) {
 		let awaitLeng = Object.keys(awaitSourceId).length;

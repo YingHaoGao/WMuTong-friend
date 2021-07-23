@@ -67,6 +67,19 @@ const consoleInner = function(obj, idx) {
 };
 
 /**
+ * 将中文符号转换成英文符号
+ */ 
+const chineseChar2englishChar = function(chineseChar){
+    // 将单引号‘’都转换成'，将双引号“”都转换成"
+    var str = chineseChar.replace(/\’|\‘/g,"'").replace(/\“|\”/g,"\"");
+    // 将中括号【】转换成[]，将大括号｛｝转换成{}
+    str = str.replace(/\【/g,"[").replace(/\】/g,"]").replace(/\｛/g,"{").replace(/\｝/g,"}");
+    // 将逗号，转换成,，将：转换成:
+    str = str.replace(/，/g,",").replace(/：/g,":");
+    return str;
+}
+
+/**
  * 屏幕录制
  * */
 class transcribe {
@@ -796,5 +809,5 @@ export {
 	consoleInner, transcribe, createInterval, 
 	print, getPerformance, robotMouse, robotKeyBoard, robotScreen,
 	fsTool, cpTool, Translator, disableClickPropagation, enableClickPropagation,
-	sessionTool, cteateNotification, createWindow, wsTool
+	sessionTool, cteateNotification, createWindow, wsTool, chineseChar2englishChar
 };
