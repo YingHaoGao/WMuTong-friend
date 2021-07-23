@@ -247,6 +247,14 @@ function createShortcut(event = {}) {
 		}
 	);
 
+	// ctrl + alt + n  清空consoleInner
+	_createShortcut('CommandOrControl+alt+n',
+		(event.ctrlKey && event.altKey && event.keycode === 78),
+		() => {
+			document.getElementById('console').html = "";
+		}
+	);
+
 	// ctrl + alt + t  翻译
 	_createShortcut('CommandOrControl+alt+t',
 		(event.ctrlKey && event.altKey && event.keycode === 20),

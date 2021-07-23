@@ -13,7 +13,6 @@ var getStr = (str = '', start, end) => {
 // 捕获请求内的 m3u8 资源
 var busClient = new WebSocket('ws://localhost:12122/');
 let get_m3u8_responseText = function(xhr) {
-	console.log(xhr)
 	let isM3u8 = xhr.responseURL.match(/.+\.m3u8/);
 
 	if($('html title')){
