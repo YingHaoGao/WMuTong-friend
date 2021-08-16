@@ -5,8 +5,8 @@
   "main": "src/main/main.js",
   "scripts": {
     "serve": "electron .",
-    "serve-win": "export NODE_ENV=devTools && electron .",
-    "serve-mac": "set NODE_ENV=devTools&& electron .",
+    "serve-mac": "export NODE_ENV=devTools && electron .",
+    "serve-win": "set NODE_ENV=devTools&& electron .",
     "packager": "electron-packager . mutong_friend --out tmp --platform=win32 --arch=x64 --app-version=0.0.1 --icon=logo.ico",
     "rebuild": "npm rebuild --runtime=electron --target=11.2.0 --disturl=https://atom.io/download/atom-shell --abi=72"
   },
