@@ -102,14 +102,16 @@ app.on('quit', () => {
 	globalShortcut.unregisterAll();
 });
 
-// 开机自启
-app.setLoginItemSettings({
-	// true在登录时启动应用，false 移除应用作为登录启动项默认为 false
-	openAtLogin: true,
-	// macOS - true 表示以隐藏的方式启动应用。 默认为false。
-	openAsHidden: false,
-	// Windows - 在登录时启动的可执行文件，具体的为打包后的APP所在的exe文件路径。默认为 process.execPath
-	path: process.execPath,
-	// Windows - 要传递给可执行文件的命令行参数。默认为空数组。注意用引号将路径换行。
-	args: [ "--processStart", `"${exeName}"` ]
-})
+if(env.NODE_ENV == 'devTools') {
+	// 开机自启
+	app.setLoginItemSettings({
+		// true在登录时启动应用，false 移除应用作为登录启动项默认为 false
+		openAtLogin: true,
+		// macOS - true 表示以隐藏的方式启动应用。 默认为false。
+		openAsHidden: false,
+		// Windows - 在登录时启动的可执行文件，具体的为打包后的APP所在的exe文件路径。默认为 process.execPath
+		path: process.execPath,
+		// Windows - 要传递给可执行文件的命令行参数。默认为空数组。注意用引号将路径换行。
+		args: [ "--processStart", `"${exeName}"` ]
+	})
+}
