@@ -60,7 +60,7 @@ var eventBind = function() {
 	// $('#webview').insertCSS({})
 };
 
-$('#webview').on('did-finish-load', e => {
+$('#webview').on('did-start-loading', e => {
 	$('#webview')[0].openDevTools();
 	const script=document.createElement("script");
 	script.type="text/javascript"; 
