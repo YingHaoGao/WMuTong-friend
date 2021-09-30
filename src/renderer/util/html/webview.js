@@ -1,4 +1,5 @@
 const xhr_proxy = require('../xhr_proxy.js');
+const WebSocket = require('ws');
 
 var interval;
 // 访问的页面 title
@@ -63,9 +64,7 @@ window.onload=function(){
 	const script=document.createElement("script");
 	script.type="text/javascript"; 
 	script.src="https://code.jquery.com/jquery-1.12.4.min.js"; 
-	document.getElementsByTagName('head')[0].appendChild(script);
-	
-	setTimeout(() => {
+	script.onload = function() {
 		$('html').append('<span id="webview-img-show"><span>')
 		var imgHideShow = function(is) {
 			if(is) {
@@ -83,13 +82,45 @@ window.onload=function(){
 			}
 		}
 
-		const WebSocket = require('ws');
+		var eventBind = function() {
+			let aCss = {
+				'padding-right': '10px', 'cursor': 'pointer'
+			}
+
+			$('#locaUrl').css({ 'margin-right': '10px' }).off().on('keydown', e => {
+				if(e.keyCode == 13) {
+					$('#webview').attr('src', $('#locaUrl').val().trim());
+				}
+			});
+			
+			$('#skip').css(aCss).off().on('click', e => {
+				$('#webview').attr('src', $('#locaUrl').val().trim());
+			});
+			$('#rollback').css(aCss).off().on('click', e => {
+				$('#webview')[0].goBack();
+			});
+			$('#refresh').css(aCss).off().on('click', e => {
+				$('#webview')[0].reload();
+			});
+			$('#imgHideShow').css(aCss).off().on('click', e => {
+				busClient.send(JSON.stringify({ id: 'webview-imgHideShow' }));
+			});
+			$('#discern').css(aCss).off().on('click', e => {
+				busClient.send(JSON.stringify({ id: 'webview-discern' }));
+			})
+			$('#openTool').css(aCss).off().on('click', e => {
+				$('#webview')[0].openDevTools();
+			});
+
+
+			busClient.send(JSON.stringify({ id: 'webview-imgHideShow' }));
+		};
+		eventBind();
 
 		let sourceSrc;
 
 		pageTitle = $('html title').text().trim().replace(/[ ]|[\r\n]|-/g,"");
 
-		var busClient = new WebSocket('ws://localhost:12122/');
 		var getSource = () => {
 			let src = $('source').attr('src');
 			let id = '';
@@ -149,7 +180,9 @@ window.onload=function(){
 		$(window).off().on('DOMNodeInserted', () => {
 			getSource();
 		})
-	}, 1000)
+	};
+
+	document.getElementsByTagName('head')[0].appendChild(script);
 }
 window.onbeforeunload = function() {
 	interval && clearInterval(interval);
