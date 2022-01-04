@@ -718,7 +718,7 @@ class createWindow {
 			width: 400,
 			height: 400,
 			center: true,
-			frame: true,
+			frame: false,
 			resizable: true,
 			useContentSize: true,
 			movable: true,
@@ -743,11 +743,12 @@ class createWindow {
 
 		this.win.loadURL(
 		  rUrl.format({
-		    pathname: path.join(__dirname, '../html/webview.html'),
+		    pathname: path.join(__dirname, './browser/index.html'),
 		    protocol: 'file',
 		    slashes: true,
 		  })
 		);
+		this.win.webContents.openDevTools();
 		return this.win;
 	}
 }

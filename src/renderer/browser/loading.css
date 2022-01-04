@@ -1,0 +1,16 @@
+body {
+  background: #fff; }
+
+.loading {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%); }
+  .loading .loading_text {
+    text-align: center;
+    font-size: 13px; }
+  .loading img {
+    width: 270px;
+    display: block; }
+
+/*# sourceMappingURL=loading.css.map */

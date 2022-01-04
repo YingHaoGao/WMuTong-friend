@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="default">
+<head>
+	<meta charset="UTF-8">
+	<meta name="renderer" content="webkit">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+	<meta name="renderer" content="webkit">
+	<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+	<link rel="stylesheet" href="../../../node_modules/electron-tabs/electron-tabs.css">
+	<link rel="stylesheet" href="./index.css" type="text/css"/>
+	<script src="../build/jquery-3.3.1.min.js" charset="UTF-8" type="text/javascript"></script>
+	<script type="text/javascript">
+        var isLoadingGuide = 0;
+        var locale = "zh";
+	</script>
+</head>
+<body>
+<div class="etabs-tabgroup grey_bg">
+	<div class="etabs-tabs"></div>
+	<div class="tab_turn_right_box">
+		<div class="tab_turn right"><span class="icons right">&#xe74f;</span></div>
+	</div>
+	<div class="etabs-buttons">
+		<button class="etabs-tab-button-new">
+			<span>新建</span>
+		</button>
+	</div>
+	<div class="tab_turn left"><span class="icons left">&#xe74f;</span></div>
+	<div class="win_opts">
+		<span class="opt icons" data-id="min">&#xe77d;</span>
+		<span class="opt icons" data-id="fullScreen" data-ismax="0">&#xe77e;</span>
+		<span class="opt icons" data-id="close">&#xe781;</span>
+	</div>
+</div>
+<div class="etabs-views"></div>
+
+<script src="./config.js" charset="UTF-8" type="text/javascript"></script>
+<script src="./util.js" charset="UTF-8" type="text/javascript"></script>
+<script src="./index.js" charset="UTF-8" type="text/javascript"></script>
+</body>
+</html>
