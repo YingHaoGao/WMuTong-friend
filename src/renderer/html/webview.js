@@ -1,4 +1,4 @@
-const xhr_proxy = require('../xhr_proxy.js');
+const xhr_proxy = require('../util/xhr_proxy.js');
 const WebSocket = require('ws');
 
 var interval;
@@ -13,7 +13,7 @@ var getStr = (str = '', start, end) => {
 
 /**
  * 将中文符号转换成英文符号
- */ 
+ */
 function chineseChar2englishChar(chineseChar){
     // 将单引号‘’都转换成'，将双引号“”都转换成"
     var str = chineseChar.replace(/\’|\‘/g,"'").replace(/\“|\”/g,"\"");
@@ -40,7 +40,7 @@ let get_m3u8_responseText = function(xhr) {
 	}
 	pageTitle = chineseChar2englishChar(pageTitle);
 	pageTitle = pageTitle.trim().replace(/[ ]|[\r\n]|-|:|\*|\?|"|\/|\\|\<|\>/g,"");
-	
+
 	if(isM3u8) {
 		let awaitLeng = Object.keys(awaitSourceId).length;
 
@@ -62,8 +62,8 @@ xhr_proxy.addHandler(get_m3u8_responseText);
 
 window.onload=function(){
 	const script=document.createElement("script");
-	script.type="text/javascript"; 
-	script.src="https://code.jquery.com/jquery-1.12.4.min.js"; 
+	script.type="text/javascript";
+	script.src="https://code.jquery.com/jquery-1.12.4.min.js";
 	script.onload = function() {
 		$('html').append('<span id="webview-img-show"><span>')
 		var imgHideShow = function(is) {
@@ -92,7 +92,7 @@ window.onload=function(){
 					$('#webview').attr('src', $('#locaUrl').val().trim());
 				}
 			});
-			
+
 			$('#skip').css(aCss).off().on('click', e => {
 				$('#webview').attr('src', $('#locaUrl').val().trim());
 			});

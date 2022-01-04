@@ -68,7 +68,7 @@ const consoleInner = function(obj, idx) {
 
 /**
  * 将中文符号转换成英文符号
- */ 
+ */
 const chineseChar2englishChar = function(chineseChar){
     // 将单引号‘’都转换成'，将双引号“”都转换成"
     var str = chineseChar.replace(/\’|\‘/g,"'").replace(/\“|\”/g,"\"");
@@ -100,7 +100,7 @@ class transcribe {
 				source = sources[0];
 				/*首先根据选择的录制源是窗口还是摄像头以不同的方式获取视频流；*/
 				let sourceId = source.id; // 所选择的屏幕或窗口 sourceId
-				
+
 				let stream = navigator.mediaDevices.getUserMedia({
 					audio: false,
 					video: {
@@ -129,7 +129,7 @@ class transcribe {
 							createRecorder(Mediastream);
 						})
 				})
-				
+
 			}).catch(error => consoleInner({ '获取窗口源信息失败': error }, 10));
 
 		// 函数初始化录制
@@ -137,7 +137,7 @@ class transcribe {
 		let i=0;
 		function createRecorder(stream) {
 			that.isTranscribe = true;
-			
+
 			that.interval.mount({
 				id: that.consoleInner,
 				repetition: Infinity,
@@ -370,7 +370,7 @@ class fsTool {
 };
 
 /**
- * cp 
+ * cp
  * */
 class cpTool {
 	constructor(params = {}) {
@@ -430,7 +430,7 @@ class cpTool {
 
 			switch(module_name) {
 				case 'ffmpeg':
-					
+
 					break;
 			}
 		}
@@ -621,7 +621,7 @@ class Translator {
 				tSpeakUrl	text	翻译结果发音地址	翻译成功一定存在，需要应用绑定语音合成实例才能正常播放否则返回110错误码
 				speakUrl	text	源语言发音地址	翻译成功一定存在，需要应用绑定语音合成实例才能正常播放否则返回110错误码
 				returnPhrase	Array	单词校验后的结果	主要校验字母大小写、单词前含符号、中文简繁体
-		*/ 
+		*/
 		return JSON.parse(result);
 	}
 	// 插入dom
@@ -699,7 +699,7 @@ class cteateNotification {
 		// actions NotificationAction[] (可选) macOS - 要添加到通知中的操作 请阅读 NotificationAction文档来了解可用的操作和限制。
 		// closeButtonText String (optional) macOS - 警告的关闭按钮的自定义标题。空字符串将导致使用默认的本地化文本.
 		// toastXml String (optional) Windows - Windows上的通知的自定义描述将取代上面的所有属性。提供对通知的设计和行为的完全定制
-		
+
 		this.options = {
 			icon: path.join(__dirname, '../../icon/logo.png'),
 			...options
@@ -743,7 +743,7 @@ class createWindow {
 
 		this.win.loadURL(
 		  rUrl.format({
-		    pathname: path.join(__dirname, './util/html/webview.html'),
+		    pathname: path.join(__dirname, '../html/webview.html'),
 		    protocol: 'file',
 		    slashes: true,
 		  })
@@ -776,7 +776,7 @@ class wsTool {
 		this.onKey = {};
 		this.wss = new WebSocket.Server({ port: 12122, ...params });
 
-		// 有客户端连接时		 
+		// 有客户端连接时
 		this.wss.on('connection', ws => {
 			this.ws = ws;
 			this.clients = this.wss.clients;
@@ -806,7 +806,7 @@ class wsTool {
 }
 
 export {
-	consoleInner, transcribe, createInterval, 
+	consoleInner, transcribe, createInterval,
 	print, getPerformance, robotMouse, robotKeyBoard, robotScreen,
 	fsTool, cpTool, Translator, disableClickPropagation, enableClickPropagation,
 	sessionTool, cteateNotification, createWindow, wsTool, chineseChar2englishChar
