@@ -386,7 +386,7 @@ let initTabGroup = function() {
                     if(tab) {
                         $(tab.tab).attr("data-id", tab.id);
                         if(tab.id != 1) {
-                            $(tab.tab).attr("data-chartid", remote.getGlobal("params").chartId);
+                            $(tab.tab).attr("data-chartid", (remote.getGlobal("params") || {}).chartId);
                         }
                     }
                     if(tab && tab.id == 1) {
@@ -605,7 +605,6 @@ let initTabGroup = function() {
         },
         "changeTabUrl": (chartId, category, title) => {
             tabGroup.getActiveTab().close();
-            console.log(chartId)
             nWs.send(JSON.stringify({ k: "editChart", args: [ chartId, category, title ] }));
         },
         "connect-success": () => {
@@ -722,6 +721,35 @@ let bindEvent = function() {
     ipc.on("exportImg_callback", function(e, toLocalPath) {
         nWs.send(JSON.stringify({ k: "exportImg_callback", args: [toLocalPath] }));
     })
+
+
+    let aCss = {
+        'padding-right': '10px', 'cursor': 'pointer'
+    };
+    $('#locaUrl').css({ 'margin-right': '10px' }).off().on('keydown', e => {
+        if(e.keyCode == 13) {
+            let activeTab = tabGroup.getActiveTab();
+            $('#webview').attr('src', $('#locaUrl').val().trim());
+        }
+    });
+    $('#skip').css(aCss).off().on('click', e => {
+        $('#webview').attr('src', $('#locaUrl').val().trim());
+    });
+    $('#rollback').css(aCss).off().on('click', e => {
+        $('#webview')[0].goBack();
+    });
+    $('#refresh').css(aCss).off().on('click', e => {
+        $('#webview')[0].reload();
+    });
+    $('#imgHideShow').css(aCss).off().on('click', e => {
+        busClient.send(JSON.stringify({ id: 'webview-imgHideShow' }));
+    });
+    $('#discern').css(aCss).off().on('click', e => {
+        busClient.send(JSON.stringify({ id: 'webview-discern' }));
+    })
+    $('#openTool').css(aCss).off().on('click', e => {
+        $('#webview')[0].openDevTools();
+    });
 };
 
 const script=document.createElement("script");
