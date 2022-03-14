@@ -11,8 +11,6 @@ var getStr = (str = '', start, end) => {
     return res ? res[1] : null
 };
 
-console.log(123)
-
 /**
  * 将中文符号转换成英文符号
  */
@@ -155,10 +153,12 @@ window.onload=function(){
 		};
 
 		busClient.on('message', data => {
+			console.log(data)
 			if(data == 'get-source') {
 				getSource();
 			}
 			else if(data == 'webview-imgHideShow') {
+				console.log($('#webview-img-show').css('display') == 'none')
 				imgHideShow($('#webview-img-show').css('display') == 'none');
 			}
 			else if(data == 'webview-discern') {

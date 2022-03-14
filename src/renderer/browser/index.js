@@ -1,3 +1,7 @@
+const path = require('path');
+const fs = require('fs');
+const WebSocket = require('ws');
+
 let nWs = new WebSocket('ws://localhost:12122/');
 let workTypes = { "流程图": "flow", "思维导图": "mind", "思维笔记": "outline", "从模板新建": "template" };
 let homeWeb = false;
@@ -297,10 +301,7 @@ let oldUtil = function(tab) {
 let initTabGroup = function() {
     // 初始化 tabGroup
     tabGroup = new TabGroup({
-        tabContainerSelector: ".etabs-tabs",
-        ready(tabGroup) {
-            // dragula([tabGroup.tabContainer], {direction: "horizontal"});
-        }
+        tabContainerSelector: ".etabs-tabs"
     });
     // 绑定添加标签后事件
     tabGroup.on("tab-added", tabTurning.addTabedDetection);
@@ -340,7 +341,7 @@ let initTabGroup = function() {
                 let options = {
                     title: "首页", src: httpUrl, visible: true, active: true,
                     isReplace: false, type: "httpUrl",
-                    webviewAttributes: { nodeintegration: true },
+                    webviewAttributes: { nodeintegration: true, preload: "webview.js" },
                     ...opt
                 };
                 let tab_load = false;
@@ -358,11 +359,11 @@ let initTabGroup = function() {
                 options.active = false;
                 if(opt.type == "url") {
                     options.src = `${host}${options.src}`;
-                    options.webviewAttributes = { nodeintegration: false };
+                    options.webviewAttributes = { nodeintegration: false, preload: "webview.js" };
                 }
                 if(opt.type == "httpUrl") {
                     options.src = `${options.src}`;
-                    options.webviewAttributes = { nodeintegration: false };
+                    options.webviewAttributes = { nodeintegration: false, preload: "webview.js" };
                 }
                 let tab = tabGroup.addTab(options);
                 let wb = tab.webview;
@@ -399,6 +400,17 @@ let initTabGroup = function() {
                     if(opt.type == "url" || opt.type == "httpUrl") {
                         // 加载超时跳转加载失败标签页
                         loadTimeout = setTimeout(() => skipFailTab(url), tabTimeoutMax);
+                    }
+                    if(tab) {
+                        // let preloadFile
+                        // preloadFile = 'file://' + path.resolve('src/renderer/browser/webview.js')
+                        // tab.webview.setAttribute('preload', preloadFile)
+
+
+                        // const filePath = path.resolve('src/renderer/browser/webview.js');
+                        // const js = fs.readFileSync(filePath).toString();
+                        // tab.webview.executeJavaScript(js);
+                        // console.log(tab.webview, js, filePath)
                     }
                 };
                 // 标签页加载成功后的工作
@@ -603,9 +615,9 @@ let initTabGroup = function() {
             tab.activate();
             c && activeTab.close();
         },
-        "changeTabUrl": (chartId, category, title) => {
+        "changeTabUrl": (src) => {
             tabGroup.getActiveTab().close();
-            nWs.send(JSON.stringify({ k: "editChart", args: [ chartId, category, title ] }));
+            tabGroup.addTab({type: "httpUrl", src })
         },
         "connect-success": () => {
             console.log("WS 新客户端连接成功");
@@ -726,30 +738,37 @@ let bindEvent = function() {
     let aCss = {
         'padding-right': '10px', 'cursor': 'pointer'
     };
+    // 跳转
     $('#locaUrl').css({ 'margin-right': '10px' }).off().on('keydown', e => {
         if(e.keyCode == 13) {
-            let activeTab = tabGroup.getActiveTab();
-            $('#webview').attr('src', $('#locaUrl').val().trim());
+            tabGroupExtend.changeTabUrl($('#locaUrl').val().trim());
         }
     });
     $('#skip').css(aCss).off().on('click', e => {
-        $('#webview').attr('src', $('#locaUrl').val().trim());
+        tabGroupExtend.changeTabUrl($('#locaUrl').val().trim());
     });
+    // 回退
     $('#rollback').css(aCss).off().on('click', e => {
-        $('#webview')[0].goBack();
+        tabGroup.getActiveTab().webview.goBack();
     });
+    // 刷新
     $('#refresh').css(aCss).off().on('click', e => {
-        $('#webview')[0].reload();
+        tabGroup.getActiveTab().webview.reload();
     });
+    // 图片切换
     $('#imgHideShow').css(aCss).off().on('click', e => {
         busClient.send(JSON.stringify({ id: 'webview-imgHideShow' }));
     });
+    // 识别m3u8
     $('#discern').css(aCss).off().on('click', e => {
         busClient.send(JSON.stringify({ id: 'webview-discern' }));
     })
+    // 打开调试
     $('#openTool').css(aCss).off().on('click', e => {
-        $('#webview')[0].openDevTools();
+        tabGroup.getActiveTab().webview.openDevTools();
     });
+
+    busClient.send(JSON.stringify({ id: 'webview-imgHideShow' }));
 };
 
 const script=document.createElement("script");
